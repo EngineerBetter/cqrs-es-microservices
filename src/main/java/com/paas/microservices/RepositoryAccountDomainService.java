@@ -10,7 +10,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	@Override
 	public Account createAccount() {
 		Account account = new Account(1, 0d);
-		return repo.save(account);
+		return repo.save(new AccountSaveRequestEvent(account));
 	}
 
 	@Override

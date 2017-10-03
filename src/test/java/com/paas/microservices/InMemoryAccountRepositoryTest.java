@@ -16,7 +16,7 @@ public class InMemoryAccountRepositoryTest {
 	@Test
 	public void writtenAccountsAreReadable() {
 		Account account = new Account(123, 123.12d);
-		Account returned = repo.save(account);
+		Account returned = repo.save(new AccountSaveRequestEvent(account));
 		assertThat(returned).isEqualTo(account);
 		Account actual = repo.load(123);
 		assertThat(actual).isEqualTo(account);
