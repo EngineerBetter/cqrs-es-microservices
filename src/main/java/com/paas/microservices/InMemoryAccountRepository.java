@@ -20,6 +20,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 			Integer newId = accounts.size() + 1;
 			Account newAccount = new Account(newId, requestEvent.startingBalance);
 			accounts.put(newId, newAccount);
+
 			AccountCreatedEvent createdEvent = new AccountCreatedEvent(UUID.randomUUID(), requestEvent.transactionId, newId);
 			events.put(createdEvent.transactionId, createdEvent);
 			return newId;

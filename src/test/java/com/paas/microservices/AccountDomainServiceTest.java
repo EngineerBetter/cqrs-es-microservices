@@ -31,4 +31,16 @@ public class AccountDomainServiceTest {
 		accountService.createAccount(transactionId);
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(1);
 	}
+
+	@Test
+	public void accountsAreCreditable() {
+		UUID transactionId = UUID.randomUUID();
+		Account created = accountService.createAccount(transactionId);
+		assertThat(created.balance).isEqualTo(0);
+
+		UUID creditTxId = UUID.randomUUID();
+		accountService.creditAccount(creditTxId, created.accountNumber, 50d);
+		double balance = accountService.getBalance(created.accountNumber);
+		assertThat(balance).isEqualTo(50d);
+	}
 }

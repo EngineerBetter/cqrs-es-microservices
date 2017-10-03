@@ -2,6 +2,8 @@ package com.paas.microservices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +18,7 @@ public class InMemoryAccountRepositoryTest {
 	@Test
 	public void writtenAccountsAreReadable() {
 		Account account = new Account(123, 123.12d);
-		Account returned = repo.save(new AccountUpdateRequestEvent(account));
+		Account returned = repo.save(new AccountUpdateRequestEvent(UUID.randomUUID(), account));
 		assertThat(returned).isEqualTo(account);
 		Account actual = repo.load(123);
 		assertThat(actual).isEqualTo(account);
