@@ -1,5 +1,6 @@
 package com.paas.microservices;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,5 +89,13 @@ public class InMemoryAccountRepository implements AccountRepository {
 		}
 
 		return accounts;
+	}
+
+	protected Map<UUID, Event> getEvents() {
+		return Collections.unmodifiableMap(events);
+	}
+
+	protected void importEvents(Map<UUID, Event> importedEvents) {
+		events.putAll(importedEvents);
 	}
 }
