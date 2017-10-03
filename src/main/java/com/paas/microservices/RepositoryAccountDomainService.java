@@ -41,6 +41,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitTxId, account);
 			repo.save(updateRequest);
 		} else {
+			//TODO: create a failed debit event
 			throw new RuntimeException("You are trying to debit more than your account balance currently has");
 		}
 	}
