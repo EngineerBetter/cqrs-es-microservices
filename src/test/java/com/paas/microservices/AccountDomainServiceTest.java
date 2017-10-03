@@ -43,4 +43,17 @@ public class AccountDomainServiceTest {
 		double balance = accountService.getBalance(created.accountNumber);
 		assertThat(balance).isEqualTo(50d);
 	}
+
+	@Test
+	public void creditsAreIdempotent() {
+		UUID transactionId = UUID.randomUUID();
+		Account created = accountService.createAccount(transactionId);
+		assertThat(created.balance).isEqualTo(0);
+
+		UUID creditTxId = UUID.randomUUID();
+		accountService.creditAccount(creditTxId, created.accountNumber, 50d);
+		accountService.creditAccount(creditTxId, created.accountNumber, 50d);
+		double balance = accountService.getBalance(created.accountNumber);
+		assertThat(balance).isEqualTo(50d);
+	}
 }
