@@ -2,14 +2,20 @@ package com.paas.microservices;
 
 import java.util.UUID;
 
-public class AccountCreateRequestEvent {
+public class AccountCreateRequestEvent implements Event {
 	public final UUID transactionId;
 	public final double startingBalance;
+
 	public AccountCreateRequestEvent(UUID transactionId, double startingBalance) {
-		super();
 		this.transactionId = transactionId;
 		this.startingBalance = startingBalance;
 	}
+
+	@Override
+	public UUID getTransactionId() {
+		return transactionId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
