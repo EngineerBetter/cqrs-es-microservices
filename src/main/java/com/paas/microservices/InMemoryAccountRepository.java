@@ -15,7 +15,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 	@Override
 	public Integer create(AccountCreateRequestEvent requestEvent) {
-		if(eventHasNotBeenSeenBefore(requestEvent)) {
+		if(isNewEvent(requestEvent)) {
 			events.put(requestEvent.getTransactionId(), requestEvent);
 			Integer newId = accounts.size() + 1;
 			Account newAccount = new Account(newId, requestEvent.startingBalance);
@@ -40,7 +40,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 	@Override
 	public Account save(AccountUpdateRequestEvent requestEvent) {
-		if(eventHasNotBeenSeenBefore(requestEvent)) {
+		if(isNewEvent(requestEvent)) {
 			events.put(requestEvent.transactionId, requestEvent);
 			accounts.put(requestEvent.account.accountNumber, requestEvent.account);
 			return requestEvent.account;
@@ -59,7 +59,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 		return accounts.size();
 	}
 
-	private boolean eventHasNotBeenSeenBefore(Event event) {
+	private boolean isNewEvent(Event event) {
 		return ! events.containsKey(event.getTransactionId());
 	}
 }
