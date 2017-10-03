@@ -56,4 +56,18 @@ public class AccountDomainServiceTest {
 		double balance = accountService.getBalance(created.accountNumber);
 		assertThat(balance).isEqualTo(50d);
 	}
+
+	@Test
+	public void accountsAreDebitable() {
+		UUID transactionId = UUID.randomUUID();
+		Account created = accountService.createAccount(transactionId);
+		assertThat(created.balance).isEqualTo(0);
+		accountService.creditAccount(UUID.randomUUID(), created.accountNumber, 200d);
+
+		accountService.debitAccount(UUID.randomUUID(), created.accountNumber, 100d);
+		accountService.debitAccount(UUID.randomUUID(), created.accountNumber, 50d);
+		double balance = accountService.getBalance(created.accountNumber);
+		assertThat(balance).isEqualTo(50);
+
+	}
 }

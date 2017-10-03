@@ -31,4 +31,13 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		return account.balance;
 	}
 
+	@Override
+	public void debitAccount(UUID debitTxId, Integer accountNumber, double amountToBeDebited) {
+		double previousBalance = getBalance(accountNumber);
+		double newBalance = previousBalance - amountToBeDebited;
+		Account account = new Account(accountNumber, newBalance);
+		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitTxId, account);
+		repo.save(updateRequest);
+	}
+
 }
