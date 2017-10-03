@@ -35,9 +35,14 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	public void debitAccount(UUID debitTxId, Integer accountNumber, double amountToBeDebited) {
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance - amountToBeDebited;
-		Account account = new Account(accountNumber, newBalance);
-		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitTxId, account);
-		repo.save(updateRequest);
+
+		if(newBalance >= 0d) {
+			Account account = new Account(accountNumber, newBalance);
+			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitTxId, account);
+			repo.save(updateRequest);
+		} else {
+			throw new RuntimeException("You are trying to debit more than your account balance currently has");
+		}
 	}
 
 }

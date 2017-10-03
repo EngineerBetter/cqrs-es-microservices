@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.UUID;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class AccountDomainServiceTest {
 	private AccountRepository repo;
@@ -82,6 +84,17 @@ public class AccountDomainServiceTest {
 		accountService.debitAccount(debitTxID, account.accountNumber, 30d);
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(70d);
+	}
 
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
+
+	@Test
+	public void accountsCannotBeDebitedBelowZero() {
+		expectedException.expect(RuntimeException.class);
+		expectedException.expectMessage("You are trying to debit more than your account balance currently has");
+		double balance = accountService.getBalance(account.accountNumber);
+		assertThat(balance).isEqualTo(0d);
+		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 30d);
 	}
 }
