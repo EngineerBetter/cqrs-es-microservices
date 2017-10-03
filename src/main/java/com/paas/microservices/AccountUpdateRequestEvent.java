@@ -1,9 +1,9 @@
 package com.paas.microservices;
 
-public class AccountSaveRequestEvent {
+public class AccountUpdateRequestEvent {
 	public final Account account;
 
-	public AccountSaveRequestEvent(Account account) {
+	public AccountUpdateRequestEvent(Account account) {
 		this.account = account;
 	}
 
@@ -23,7 +23,7 @@ public class AccountSaveRequestEvent {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountSaveRequestEvent other = (AccountSaveRequestEvent) obj;
+		AccountUpdateRequestEvent other = (AccountUpdateRequestEvent) obj;
 		if (account == null) {
 			if (other.account != null)
 				return false;

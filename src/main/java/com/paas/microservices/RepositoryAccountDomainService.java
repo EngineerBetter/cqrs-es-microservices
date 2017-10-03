@@ -1,5 +1,7 @@
 package com.paas.microservices;
 
+import java.util.UUID;
+
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
 
@@ -8,9 +10,10 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	@Override
-	public Account createAccount() {
-		Account account = new Account(1, 0d);
-		return repo.save(new AccountSaveRequestEvent(account));
+	public Account createAccount(UUID transactionId) {
+		double startingBalance = 0d;
+		Integer createdId = repo.create(new AccountCreateRequestEvent(transactionId, startingBalance));
+		return new Account(createdId, startingBalance);
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package com.paas.microservices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,7 +17,8 @@ public class AccountDomainServiceTest {
 
 	@Test
 	public void newAccountsHaveAZeroBalance() {
-		Account account = accountService.createAccount();
+		UUID transactionId = UUID.randomUUID();
+		Account account = accountService.createAccount(transactionId);
 		assertThat(account.balance).isEqualTo(0d);
 	}
 }

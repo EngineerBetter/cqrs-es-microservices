@@ -1,7 +1,9 @@
 package com.paas.microservices;
 
 public interface AccountRepository {
-	Account save(AccountSaveRequestEvent event);
+	Integer create(AccountCreateRequestEvent event);
+
+	Account save(AccountUpdateRequestEvent event);
 
 	Account load(Integer accountNumber);
 }

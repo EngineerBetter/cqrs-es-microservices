@@ -11,7 +11,15 @@ public class InMemoryAccountRepository implements AccountRepository {
 	}
 
 	@Override
-	public Account save(AccountSaveRequestEvent event) {
+	public Integer create(AccountCreateRequestEvent event) {
+		Integer newId = accounts.size() + 1;
+		Account newAccount = new Account(newId, event.startingBalance);
+		accounts.put(newId, newAccount);
+		return newId;
+	}
+
+	@Override
+	public Account save(AccountUpdateRequestEvent event) {
 		accounts.put(event.account.accountNumber, event.account);
 		return event.account;
 	}
