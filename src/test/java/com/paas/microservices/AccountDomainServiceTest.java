@@ -10,12 +10,12 @@ public class AccountDomainServiceTest {
 
 	@Before
 	public void setup() {
-		accountService = new AccountDomainService();
+		accountService = new RepositoryAccountDomainService(new InMemoryAccountRepository());
 	}
 
 	@Test
-	public void accountBalanceIsGettable() {
-		Double balance = accountService.getBalance(Integer accountNumber);
-		assertThat(balance).isNotNull();
+	public void newAccountsHaveAZeroBalance() {
+		Account account = accountService.createAccount();
+		assertThat(account.balance).isEqualTo(0d);
 	}
 }
