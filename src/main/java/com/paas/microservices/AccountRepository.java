@@ -6,4 +6,6 @@ public interface AccountRepository {
 	Account save(AccountUpdateRequestEvent event);
 
 	Account load(Integer accountNumber);
+
+	Integer getTotalNumberOfAccounts();
 }
