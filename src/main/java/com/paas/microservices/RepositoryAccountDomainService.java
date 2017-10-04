@@ -25,13 +25,13 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	@Override
-	public void creditAccount(UUID transactionId, UUID accountNumber, double amount) {
+	public void creditAccount(UUID eventId, UUID accountNumber, double amount) {
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance + amount;
 		Account account = new Account(accountNumber, newBalance);
-		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(transactionId, account);
+		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(eventId, account);
 		repo.save(updateRequest);
-		eventStore.add(new AccountCreditedEvent(transactionId, accountNumber, amount, newBalance));
+		eventStore.add(new AccountCreditedEvent(eventId, accountNumber, amount, newBalance));
 	}
 
 	@Override
@@ -41,15 +41,15 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	@Override
-	public void debitAccount(UUID debitTxId, UUID accountNumber, double amountToBeDebited) {
+	public void debitAccount(UUID debitEventId, UUID accountNumber, double amountToBeDebited) {
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance - amountToBeDebited;
 
 		if(newBalance >= 0d) {
 			Account account = new Account(accountNumber, newBalance);
-			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitTxId, account);
+			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitEventId, account);
 			repo.save(updateRequest);
-			eventStore.add(new AccountDebitedEvent(debitTxId, accountNumber, amountToBeDebited, newBalance));
+			eventStore.add(new AccountDebitedEvent(debitEventId, accountNumber, amountToBeDebited, newBalance));
 		} else {
 			//TODO: create a failed debit event
 			throw new RuntimeException("You are trying to debit more than your account balance currently has");
