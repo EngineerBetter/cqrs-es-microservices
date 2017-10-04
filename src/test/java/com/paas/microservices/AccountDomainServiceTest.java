@@ -2,12 +2,17 @@ package com.paas.microservices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import com.paas.microservices.TransactionRow.TransactionType;
 
 public class AccountDomainServiceTest {
 	private AccountRepository repo;
@@ -99,5 +104,24 @@ public class AccountDomainServiceTest {
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(0d);
 		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 30d);
+	}
+
+	@Ignore
+	@Test
+	public void transactionHistoriesAreGettable() {
+		assertThat(account.balance).isEqualTo(0);
+
+		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 50d);
+		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 125d);
+		double balance = accountService.getBalance(account.accountNumber);
+		assertThat(balance).isEqualTo(175d);
+
+		TransactionHistory history = accountService.getTransactionHistory(account.accountNumber);
+		assertThat(history.transactions.get(0)).isEqualTo(new TransactionRow(TransactionType.CREDIT, 50d, 50d));
+		assertThat(history.transactions.get(0)).isEqualTo(new TransactionRow(TransactionType.CREDIT, 125d, 175d));
+
+		List<TransactionRow> rows = Arrays.asList(new TransactionRow(TransactionType.CREDIT, 50d, 50d), new TransactionRow(TransactionType.CREDIT, 125d, 175d));
+		TransactionHistory expected = new TransactionHistory(rows);
+		assertThat(history).isEqualTo(expected);
 	}
 }

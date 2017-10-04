@@ -1,9 +1,13 @@
 package com.paas.microservices;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
+	public enum EventType { CREDIT, DEBIT};
+	EventType type;
+	Map<UUID, TransactionRow> transactions;
 
 	public RepositoryAccountDomainService(AccountRepository repo) {
 		this.repo = repo;
@@ -18,6 +22,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 
 	@Override
 	public void creditAccount(UUID transactionId, UUID accountNumber, double amount) {
+		this.type = EventType.CREDIT;
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance + amount;
 		Account account = new Account(accountNumber, newBalance);
@@ -33,6 +38,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 
 	@Override
 	public void debitAccount(UUID debitTxId, UUID accountNumber, double amountToBeDebited) {
+		this.type = EventType.DEBIT;
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance - amountToBeDebited;
 
@@ -44,6 +50,11 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 			//TODO: create a failed debit event
 			throw new RuntimeException("You are trying to debit more than your account balance currently has");
 		}
+	}
+
+	@Override
+	public TransactionHistory getTransactionHistory(UUID accountNumber) {
+		return repo.getTransactionHistory(accountNumber);
 	}
 
 }

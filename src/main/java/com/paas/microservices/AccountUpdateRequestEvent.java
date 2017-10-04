@@ -6,6 +6,7 @@ public class AccountUpdateRequestEvent implements Event {
 	public final UUID eventId;
 	public final Account account;
 
+
 	public AccountUpdateRequestEvent(UUID eventId, Account account) {
 		this.eventId = eventId;
 		this.account = account;

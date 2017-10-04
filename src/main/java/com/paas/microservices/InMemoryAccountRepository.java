@@ -1,33 +1,31 @@
 package com.paas.microservices;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 public class InMemoryAccountRepository implements AccountRepository {
-	private final Set<Event> events;
+	private final EventStore eventStore;
 
 	public InMemoryAccountRepository() {
-		events = new LinkedHashSet<>();
+		eventStore = new EventStore();
 	}
 
 	@Override
 	public UUID create(AccountCreateRequestEvent requestEvent) {
 		Map<UUID, Account> snapshot = getAccountsSnapshot();
 
-		if(isNewEvent(requestEvent)) {
-			events.add(requestEvent);
+		if(eventStore.isNewEvent(requestEvent)) {
+			eventStore.add(requestEvent);
 
 			UUID newId = apply(requestEvent, snapshot);
 
 			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
-			events.add(createdEvent);
+			eventStore.add(createdEvent);
 			return newId;
 		} else {
-			for(Event e: events) {
+			for(Event e: eventStore.getEvents()) {
 				if(e instanceof AccountCreatedEvent) {
 					AccountCreatedEvent ace = (AccountCreatedEvent) e;
 					if(ace.parentEventId.equals(requestEvent.eventId)) {
@@ -49,8 +47,8 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 	@Override
 	public Account save(AccountUpdateRequestEvent requestEvent) {
-		if(isNewEvent(requestEvent)) {
-			events.add(requestEvent);
+		if(eventStore.isNewEvent(requestEvent)) {
+			eventStore.add(requestEvent);
 			apply(requestEvent, getAccountsSnapshot());
 			return requestEvent.account;
 		} else {
@@ -78,14 +76,16 @@ public class InMemoryAccountRepository implements AccountRepository {
 		return getAccountsSnapshot().size();
 	}
 
-	private boolean isNewEvent(Event event) {
-		return ! events.contains(event);
+	@Override
+	public TransactionHistory getTransactionHistory(UUID accountNumber) {
+		return null;
+
 	}
 
 	protected Map<UUID, Account> getAccountsSnapshot() {
 		Map<UUID, Account> accounts = new HashMap<>();
 
-		for(Event e : events) {
+		for(Event e : eventStore.getEvents()) {
 			if(e instanceof AccountCreateRequestEvent) {
 				apply((AccountCreateRequestEvent) e, accounts);
 			}
@@ -98,11 +98,11 @@ public class InMemoryAccountRepository implements AccountRepository {
 		return accounts;
 	}
 
-	protected Set<Event> getEvents() {
-		return Collections.unmodifiableSet(events);
+	public void importEvents(Set<Event> other) {
+		eventStore.importEvents(other);
 	}
 
-	protected void importEvents(Set<Event> importedEvents) {
-		events.addAll(importedEvents);
+	public Set<Event> getEvents() {
+		return eventStore.getEvents();
 	}
 }

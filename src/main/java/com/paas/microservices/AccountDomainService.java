@@ -11,4 +11,6 @@ public interface AccountDomainService {
 	double getBalance(UUID accountNumber);
 
 	void debitAccount(UUID debitTxId, UUID accountNumber, double amountToBeDebited);
+
+	TransactionHistory getTransactionHistory(UUID accountNumber);
 }
