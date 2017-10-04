@@ -10,15 +10,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MultiDcMergingTest {
+	private EventStore leftEventStore, rightEventStore;
 	private RepositoryAccountDomainService leftService, rightService;
 	private InMemoryAccountRepository leftRepo, rightRepo;
 
 	@Before
 	public void setup() {
-		leftRepo = new InMemoryAccountRepository();
-		rightRepo = new InMemoryAccountRepository();
-		leftService = new RepositoryAccountDomainService(leftRepo);
-		rightService = new RepositoryAccountDomainService(rightRepo);
+		leftEventStore = new EventStore();
+		rightEventStore = new EventStore();
+		leftRepo = new InMemoryAccountRepository(leftEventStore);
+		rightRepo = new InMemoryAccountRepository(rightEventStore);
+		leftService = new RepositoryAccountDomainService(leftRepo, leftEventStore);
+		rightService = new RepositoryAccountDomainService(rightRepo, rightEventStore);
 	}
 
 	@Test
@@ -34,7 +37,7 @@ public class MultiDcMergingTest {
 		merged.addAll(rightRepo.getEvents());
 
 		leftRepo.importEvents(merged);
-		assertThat(leftRepo.getEvents().size()).isEqualTo(6);
+		assertThat(leftRepo.getEvents().size()).isEqualTo(8); //More messages created by domain service
 		double balance = leftService.getBalance(leftAccount.accountNumber);
 		assertThat(balance).isEqualTo(100d);
 	}

@@ -8,8 +8,8 @@ import java.util.UUID;
 public class InMemoryAccountRepository implements AccountRepository {
 	private final EventStore eventStore;
 
-	public InMemoryAccountRepository() {
-		eventStore = new EventStore();
+	public InMemoryAccountRepository(EventStore eventStore) {
+		this.eventStore = eventStore;
 	}
 
 	@Override

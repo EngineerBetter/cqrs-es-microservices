@@ -13,9 +13,9 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	Map<UUID, TransactionRow> transactions;
 	private final EventStore eventStore;
 
-	public RepositoryAccountDomainService(AccountRepository repo) {
+	public RepositoryAccountDomainService(AccountRepository repo, EventStore eventStore) {
 		this.repo = repo;
-		this.eventStore = new EventStore();
+		this.eventStore = eventStore;
 	}
 
 	@Override
