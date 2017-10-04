@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MultiDcMergingTest {
-	private AccountDomainService leftService, rightService;
+	private RepositoryAccountDomainService leftService, rightService;
 	private InMemoryAccountRepository leftRepo, rightRepo;
 
 	@Before
@@ -37,5 +37,48 @@ public class MultiDcMergingTest {
 		assertThat(leftRepo.getEvents().size()).isEqualTo(6);
 		double balance = leftService.getBalance(leftAccount.accountNumber);
 		assertThat(balance).isEqualTo(100d);
+	}
+
+	@Test
+	public void debitsThatResultInOverdrawnAccountsAreRejectedOnMerge() {
+		UUID accountNumber = UUID.randomUUID();
+		leftService.createAccount(accountNumber);
+		leftService.creditAccount(UUID.randomUUID(), accountNumber, 100d);
+		merge();
+		assertThat(leftService.getBalance(accountNumber)).isEqualTo(100d);
+		assertThat(rightService.getBalance(accountNumber)).isEqualTo(100d);
+
+		leftService.debitAccount(UUID.randomUUID(), accountNumber, 70d);
+		assertThat(leftService.getBalance(accountNumber)).isEqualTo(30d);
+
+		rightService.debitAccount(UUID.randomUUID(), accountNumber, 60d);
+		assertThat(rightService.getBalance(accountNumber)).isEqualTo(40d);
+
+		merge();
+		assertThat(rightService.getBalance(accountNumber)).isEqualTo(30d);
+		assertThat(leftService.getBalance(accountNumber)).isEqualTo(30d);
+	}
+
+	private void merge() {
+		mergeServices();
+		mergeRepos();
+	}
+
+	private void mergeServices() {
+		Set<Event> merged = new LinkedHashSet<>();
+		merged.addAll(leftService.getEvents());
+		merged.addAll(rightService.getEvents());
+
+		leftService.importEvents(merged);
+		rightService.importEvents(merged);
+	}
+
+	private void mergeRepos() {
+		Set<Event> merged = new LinkedHashSet<>();
+		merged.addAll(leftRepo.getEvents());
+		merged.addAll(rightRepo.getEvents());
+
+		leftRepo.importEvents(merged);
+		rightRepo.importEvents(merged);
 	}
 }
