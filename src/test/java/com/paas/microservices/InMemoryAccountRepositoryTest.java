@@ -55,7 +55,7 @@ public class InMemoryAccountRepositoryTest {
 		assertThat(leftEvents.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
 				.map(e -> (AccountCreatedEvent) e)
-				.filter((e) -> e.parentTransactionId.equals(requestEvent.transactionId))
+				.filter((e) -> e.parentEventId.equals(requestEvent.eventId))
 				.filter((e) -> createdAccountNumber.equals(e.createdId))
 				.collect(Collectors.toList()).size()).isEqualTo(1);
 
@@ -65,7 +65,7 @@ public class InMemoryAccountRepositoryTest {
 		assertThat(leftEventsAfterImport.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
 				.map(e -> (AccountCreatedEvent) e)
-				.filter((e) -> e.parentTransactionId.equals(requestEvent.transactionId))
+				.filter((e) -> e.parentEventId.equals(requestEvent.eventId))
 				.filter((e) -> createdAccountNumber.equals(e.createdId))
 				.collect(Collectors.toList()).size()).isEqualTo(1);
 	}
@@ -119,7 +119,7 @@ public class InMemoryAccountRepositoryTest {
 		assertThat(leftEvents.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
 				.map(e -> (AccountCreatedEvent) e)
-				.filter((e) -> e.parentTransactionId.equals(requestEvent.transactionId))
+				.filter((e) -> e.parentEventId.equals(requestEvent.eventId))
 				.filter((e) -> createdAccountNumber.equals(e.createdId))
 				.collect(Collectors.toList()).size()).isEqualTo(1);
 	}

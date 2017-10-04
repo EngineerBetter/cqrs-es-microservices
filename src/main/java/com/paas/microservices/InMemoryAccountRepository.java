@@ -23,14 +23,14 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 			UUID newId = apply(requestEvent, snapshot);
 
-			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.transactionId, newId);
+			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
 			events.add(createdEvent);
 			return newId;
 		} else {
 			for(Event e: events) {
 				if(e instanceof AccountCreatedEvent) {
 					AccountCreatedEvent ace = (AccountCreatedEvent) e;
-					if(ace.parentTransactionId.equals(requestEvent.transactionId)) {
+					if(ace.parentEventId.equals(requestEvent.eventId)) {
 						return ace.createdId;
 					}
 				}
@@ -41,8 +41,8 @@ public class InMemoryAccountRepository implements AccountRepository {
 	}
 
 	private UUID apply(AccountCreateRequestEvent requestEvent, Map<UUID, Account> accounts) {
-		UUID newId = requestEvent.transactionId;
-		Account newAccount = new Account(requestEvent.transactionId, requestEvent.startingBalance);
+		UUID newId = requestEvent.eventId;
+		Account newAccount = new Account(requestEvent.eventId, requestEvent.startingBalance);
 		accounts.put(newId, newAccount);
 		return newId;
 	}

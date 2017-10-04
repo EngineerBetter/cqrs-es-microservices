@@ -3,12 +3,12 @@ package com.paas.microservices;
 import java.util.UUID;
 
 public class AccountCreatedEvent implements Event {
-	public final UUID parentTransactionId;
+	public final UUID parentEventId;
 	public final UUID createdId;
 
 
-	public AccountCreatedEvent(UUID parentTransactionId, UUID createdId) {
-		this.parentTransactionId = parentTransactionId;
+	public AccountCreatedEvent(UUID parentEventId, UUID createdId) {
+		this.parentEventId = parentEventId;
 		this.createdId = createdId;
 	}
 
@@ -18,7 +18,7 @@ public class AccountCreatedEvent implements Event {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((createdId == null) ? 0 : createdId.hashCode());
-		result = prime * result + ((parentTransactionId == null) ? 0 : parentTransactionId.hashCode());
+		result = prime * result + ((parentEventId == null) ? 0 : parentEventId.hashCode());
 		return result;
 	}
 
@@ -37,10 +37,10 @@ public class AccountCreatedEvent implements Event {
 				return false;
 		} else if (!createdId.equals(other.createdId))
 			return false;
-		if (parentTransactionId == null) {
-			if (other.parentTransactionId != null)
+		if (parentEventId == null) {
+			if (other.parentEventId != null)
 				return false;
-		} else if (!parentTransactionId.equals(other.parentTransactionId))
+		} else if (!parentEventId.equals(other.parentEventId))
 			return false;
 		return true;
 	}
@@ -48,6 +48,6 @@ public class AccountCreatedEvent implements Event {
 
 	@Override
 	public String toString() {
-		return "AccountCreatedEvent [parentTransactionId=" + parentTransactionId + ", createdId=" + createdId + "]";
+		return "AccountCreatedEvent [parentEventId=" + parentEventId + ", createdId=" + createdId + "]";
 	}
 }

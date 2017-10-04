@@ -3,11 +3,11 @@ package com.paas.microservices;
 import java.util.UUID;
 
 public class AccountCreateRequestEvent implements Event {
-	public final UUID transactionId;
+	public final UUID eventId;
 	public final double startingBalance;
 
-	public AccountCreateRequestEvent(UUID transactionId, double startingBalance) {
-		this.transactionId = transactionId;
+	public AccountCreateRequestEvent(UUID eventId, double startingBalance) {
+		this.eventId = eventId;
 		this.startingBalance = startingBalance;
 	}
 
@@ -18,7 +18,7 @@ public class AccountCreateRequestEvent implements Event {
 		long temp;
 		temp = Double.doubleToLongBits(startingBalance);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + ((transactionId == null) ? 0 : transactionId.hashCode());
+		result = prime * result + ((eventId == null) ? 0 : eventId.hashCode());
 		return result;
 	}
 	@Override
@@ -32,16 +32,16 @@ public class AccountCreateRequestEvent implements Event {
 		AccountCreateRequestEvent other = (AccountCreateRequestEvent) obj;
 		if (Double.doubleToLongBits(startingBalance) != Double.doubleToLongBits(other.startingBalance))
 			return false;
-		if (transactionId == null) {
-			if (other.transactionId != null)
+		if (eventId == null) {
+			if (other.eventId != null)
 				return false;
-		} else if (!transactionId.equals(other.transactionId))
+		} else if (!eventId.equals(other.eventId))
 			return false;
 		return true;
 	}
 	@Override
 	public String toString() {
-		return "AccountCreateRequestEvent [transactionId=" + transactionId + ", startingBalance=" + startingBalance
+		return "AccountCreateRequestEvent [eventId=" + eventId + ", startingBalance=" + startingBalance
 				+ "]";
 	}
 
