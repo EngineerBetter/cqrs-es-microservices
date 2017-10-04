@@ -22,7 +22,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 			Integer newId = apply(requestEvent, snapshot);
 
-			AccountCreatedEvent createdEvent = new AccountCreatedEvent(UUID.randomUUID(), requestEvent.transactionId, newId);
+			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.transactionId, newId);
 			events.add(createdEvent);
 			return newId;
 		} else {

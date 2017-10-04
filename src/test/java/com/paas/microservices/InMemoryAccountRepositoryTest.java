@@ -114,9 +114,9 @@ public class InMemoryAccountRepositoryTest {
 		Integer createdAccountNumber = repo.create(requestEvent);
 		assertThat(repo.getEvents().size()).isEqualTo(2);
 
-		Map<UUID, Event> leftEvents = repo.getEvents();
-		assertThat(leftEvents).containsEntry(requestEvent.transactionId, requestEvent);
-		assertThat(leftEvents.values().stream()
+		Set<Event> leftEvents = repo.getEvents();
+		assertThat(leftEvents).contains(requestEvent);
+		assertThat(leftEvents.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
 				.map(e -> (AccountCreatedEvent) e)
 				.filter((e) -> e.parentTransactionId.equals(requestEvent.transactionId))
