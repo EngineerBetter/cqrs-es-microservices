@@ -20,7 +20,7 @@ public class AccountUpdateRequestEvent implements Event {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((account == null) ? 0 : account.hashCode());
+		result = prime * result + ((account.accountNumber == 0) ? 0 : account.accountNumber);
 		result = prime * result + ((transactionId == null) ? 0 : transactionId.hashCode());
 		return result;
 	}
@@ -37,7 +37,7 @@ public class AccountUpdateRequestEvent implements Event {
 		if (account == null) {
 			if (other.account != null)
 				return false;
-		} else if (!account.equals(other.account))
+		} else if (account.accountNumber != other.account.accountNumber)
 			return false;
 		if (transactionId == null) {
 			if (other.transactionId != null)

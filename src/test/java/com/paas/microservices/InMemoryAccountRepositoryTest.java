@@ -2,8 +2,8 @@ package com.paas.microservices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -50,9 +50,9 @@ public class InMemoryAccountRepositoryTest {
 		Integer createdAccountNumber = left.create(requestEvent);
 		assertThat(left.getEvents().size()).isEqualTo(2);
 
-		Map<UUID, Event> leftEvents = left.getEvents();
-		assertThat(leftEvents).containsEntry(requestEvent.transactionId, requestEvent);
-		assertThat(leftEvents.values().stream()
+		Set<Event> leftEvents = left.getEvents();
+		assertThat(leftEvents).contains(requestEvent);
+		assertThat(leftEvents.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
 				.map(e -> (AccountCreatedEvent) e)
 				.filter((e) -> e.parentTransactionId.equals(requestEvent.transactionId))
@@ -60,9 +60,9 @@ public class InMemoryAccountRepositoryTest {
 				.collect(Collectors.toList()).size()).isEqualTo(1);
 
 		left.importEvents(leftEvents);
-		Map<UUID, Event> leftEventsAfterImport = left.getEvents();
-		assertThat(leftEventsAfterImport).containsEntry(requestEvent.transactionId, requestEvent);
-		assertThat(leftEventsAfterImport.values().stream()
+		Set<Event> leftEventsAfterImport = left.getEvents();
+		assertThat(leftEventsAfterImport).contains(requestEvent);
+		assertThat(leftEventsAfterImport.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
 				.map(e -> (AccountCreatedEvent) e)
 				.filter((e) -> e.parentTransactionId.equals(requestEvent.transactionId))
@@ -79,11 +79,11 @@ public class InMemoryAccountRepositoryTest {
 		assertCreateRequestResultsInTwoEvents(left);
 		assertCreateRequestResultsInTwoEvents(right);
 
-		Map<UUID, Event> leftEvents = left.getEvents();
-		Map<UUID, Event> rightEvents = right.getEvents();
-		Map<UUID, Event> mergedEvents = new LinkedHashMap<>();
-		mergedEvents.putAll(leftEvents);
-		mergedEvents.putAll(rightEvents);
+		Set<Event> leftEvents = left.getEvents();
+		Set<Event> rightEvents = right.getEvents();
+		Set<Event> mergedEvents = new LinkedHashSet<>();
+		mergedEvents.addAll(leftEvents);
+		mergedEvents.addAll(rightEvents);
 		left.importEvents(mergedEvents);
 		right.importEvents(mergedEvents);
 		assertThat(left.getEvents()).isEqualTo(mergedEvents);
@@ -101,11 +101,11 @@ public class InMemoryAccountRepositoryTest {
 		left.create(requestEvent);
 		right.create(requestEvent);
 
-		Map<UUID, Event> leftEvents = left.getEvents();
-		Map<UUID, Event> rightEvents = right.getEvents();
-		Map<UUID, Event> mergedEvents = new LinkedHashMap<>();
-		mergedEvents.putAll(leftEvents);
-		mergedEvents.putAll(rightEvents);
+		Set<Event> leftEvents = left.getEvents();
+		Set<Event> rightEvents = right.getEvents();
+		Set<Event> mergedEvents = new LinkedHashSet<>();
+		mergedEvents.addAll(leftEvents);
+		mergedEvents.addAll(rightEvents);
 		assertThat(mergedEvents.size()).isEqualTo(2);
 	}
 

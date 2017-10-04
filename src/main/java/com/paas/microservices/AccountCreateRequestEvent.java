@@ -12,11 +12,6 @@ public class AccountCreateRequestEvent implements Event {
 	}
 
 	@Override
-	public UUID getTransactionId() {
-		return transactionId;
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
