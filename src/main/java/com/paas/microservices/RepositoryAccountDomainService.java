@@ -49,6 +49,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 			Account account = new Account(accountNumber, newBalance);
 			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitTxId, account);
 			repo.save(updateRequest);
+			eventStore.add(new AccountDebitedEvent(debitTxId, accountNumber, amountToBeDebited, newBalance));
 		} else {
 			//TODO: create a failed debit event
 			throw new RuntimeException("You are trying to debit more than your account balance currently has");
@@ -63,6 +64,11 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 			if(e instanceof AccountCreditedEvent && accountNumber.equals(((AccountCreditedEvent) e).accountNumber)) {
 				AccountCreditedEvent cae = (AccountCreditedEvent) e;
 				rows.add(new TransactionRow(TransactionType.CREDIT,cae.amount, cae.resultingBalance));
+			}
+
+			if(e instanceof AccountDebitedEvent && accountNumber.equals(((AccountDebitedEvent) e).accountNumber)) {
+				AccountDebitedEvent cae = (AccountDebitedEvent) e;
+				rows.add(new TransactionRow(TransactionType.DEBIT,cae.amount, cae.resultingBalance));
 			}
 		}
 

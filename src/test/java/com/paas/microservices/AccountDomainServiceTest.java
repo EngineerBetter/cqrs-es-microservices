@@ -2,8 +2,6 @@ package com.paas.microservices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -111,15 +109,13 @@ public class AccountDomainServiceTest {
 
 		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 50d);
 		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 125d);
+		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 30d);
 		double balance = accountService.getBalance(account.accountNumber);
-		assertThat(balance).isEqualTo(175d);
+		assertThat(balance).isEqualTo(145d);
 
 		TransactionHistory history = accountService.getTransactionHistory(account.accountNumber);
 		assertThat(history.transactions.get(0)).isEqualTo(new TransactionRow(TransactionType.CREDIT, 50d, 50d));
 		assertThat(history.transactions.get(1)).isEqualTo(new TransactionRow(TransactionType.CREDIT, 125d, 175d));
-
-		List<TransactionRow> rows = Arrays.asList(new TransactionRow(TransactionType.CREDIT, 50d, 50d), new TransactionRow(TransactionType.CREDIT, 125d, 175d));
-		TransactionHistory expected = new TransactionHistory(rows);
-		assertThat(history).isEqualTo(expected);
+		assertThat(history.transactions.get(2)).isEqualTo(new TransactionRow(TransactionType.DEBIT, 30d, 145d));
 	}
 }
