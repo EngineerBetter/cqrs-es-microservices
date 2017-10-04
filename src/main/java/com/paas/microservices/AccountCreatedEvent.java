@@ -4,22 +4,24 @@ import java.util.UUID;
 
 public class AccountCreatedEvent implements Event {
 	public final UUID parentTransactionId;
-	public final int createdId;
+	public final UUID createdId;
 
 
-	public AccountCreatedEvent(UUID parentTransactionId, int createdId) {
+	public AccountCreatedEvent(UUID parentTransactionId, UUID createdId) {
 		this.parentTransactionId = parentTransactionId;
 		this.createdId = createdId;
 	}
+
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + createdId;
+		result = prime * result + ((createdId == null) ? 0 : createdId.hashCode());
 		result = prime * result + ((parentTransactionId == null) ? 0 : parentTransactionId.hashCode());
 		return result;
 	}
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -30,7 +32,10 @@ public class AccountCreatedEvent implements Event {
 		if (getClass() != obj.getClass())
 			return false;
 		AccountCreatedEvent other = (AccountCreatedEvent) obj;
-		if (createdId != other.createdId)
+		if (createdId == null) {
+			if (other.createdId != null)
+				return false;
+		} else if (!createdId.equals(other.createdId))
 			return false;
 		if (parentTransactionId == null) {
 			if (other.parentTransactionId != null)
@@ -39,6 +44,7 @@ public class AccountCreatedEvent implements Event {
 			return false;
 		return true;
 	}
+
 
 	@Override
 	public String toString() {

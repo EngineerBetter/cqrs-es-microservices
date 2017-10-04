@@ -1,10 +1,12 @@
 package com.paas.microservices;
 
+import java.util.UUID;
+
 public class Account {
-	public final int accountNumber;
+	public final UUID accountNumber;
 	public final double balance;
 
-	public Account(int accountNumber, double balance) {
+	public Account(UUID accountNumber, double balance) {
 		this.accountNumber = accountNumber;
 		this.balance = balance;
 	}
@@ -13,7 +15,7 @@ public class Account {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + accountNumber;
+		result = prime * result + ((accountNumber == null) ? 0 : accountNumber.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(balance);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -29,7 +31,10 @@ public class Account {
 		if (getClass() != obj.getClass())
 			return false;
 		Account other = (Account) obj;
-		if (accountNumber != other.accountNumber)
+		if (accountNumber == null) {
+			if (other.accountNumber != null)
+				return false;
+		} else if (!accountNumber.equals(other.accountNumber))
 			return false;
 		if (Double.doubleToLongBits(balance) != Double.doubleToLongBits(other.balance))
 			return false;

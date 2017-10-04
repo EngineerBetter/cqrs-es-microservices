@@ -45,10 +45,13 @@ public class AccountDomainServiceTest {
 	public void accountsAreCreditable() {
 		assertThat(account.balance).isEqualTo(0);
 
-		UUID creditTxId = UUID.randomUUID();
-		accountService.creditAccount(creditTxId, account.accountNumber, 50d);
+		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 50d);
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(50d);
+
+		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 50d);
+		balance = accountService.getBalance(account.accountNumber);
+		assertThat(balance).isEqualTo(100d);
 	}
 
 	@Test

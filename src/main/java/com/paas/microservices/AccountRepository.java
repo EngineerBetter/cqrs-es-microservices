@@ -1,11 +1,13 @@
 package com.paas.microservices;
 
+import java.util.UUID;
+
 public interface AccountRepository {
-	Integer create(AccountCreateRequestEvent event);
+	UUID create(AccountCreateRequestEvent event);
 
 	Account save(AccountUpdateRequestEvent event);
 
-	Account load(Integer accountNumber);
+	Account load(UUID accountNumber);
 
 	Integer getTotalNumberOfAccounts();
 }

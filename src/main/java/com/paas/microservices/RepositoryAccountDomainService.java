@@ -12,12 +12,12 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	@Override
 	public Account createAccount(UUID transactionId) {
 		double startingBalance = 0d;
-		Integer createdId = repo.create(new AccountCreateRequestEvent(transactionId, startingBalance));
+		UUID createdId = repo.create(new AccountCreateRequestEvent(transactionId, startingBalance));
 		return new Account(createdId, startingBalance);
 	}
 
 	@Override
-	public void creditAccount(UUID transactionId, Integer accountNumber, double amount) {
+	public void creditAccount(UUID transactionId, UUID accountNumber, double amount) {
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance + amount;
 		Account account = new Account(accountNumber, newBalance);
@@ -26,13 +26,13 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	@Override
-	public double getBalance(Integer accountNumber) {
+	public double getBalance(UUID accountNumber) {
 		Account account = repo.load(accountNumber);
 		return account.balance;
 	}
 
 	@Override
-	public void debitAccount(UUID debitTxId, Integer accountNumber, double amountToBeDebited) {
+	public void debitAccount(UUID debitTxId, UUID accountNumber, double amountToBeDebited) {
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance - amountToBeDebited;
 

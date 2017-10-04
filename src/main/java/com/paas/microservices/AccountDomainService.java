@@ -6,9 +6,9 @@ public interface AccountDomainService {
 
 	Account createAccount(UUID transactionId);
 
-	void creditAccount(UUID transactionId, Integer accountNumber, double amount);
+	void creditAccount(UUID transactionId, UUID accountNumber, double amount);
 
-	double getBalance(Integer accountNumber);
+	double getBalance(UUID accountNumber);
 
-	void debitAccount(UUID debitTxId, Integer accountNumber, double amountToBeDebited);
+	void debitAccount(UUID debitTxId, UUID accountNumber, double amountToBeDebited);
 }

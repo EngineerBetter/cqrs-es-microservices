@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class InMemoryAccountRepository implements AccountRepository {
 	private final Set<Event> events;
@@ -14,13 +15,13 @@ public class InMemoryAccountRepository implements AccountRepository {
 	}
 
 	@Override
-	public Integer create(AccountCreateRequestEvent requestEvent) {
-		Map<Integer, Account> snapshot = getAccountsSnapshot();
+	public UUID create(AccountCreateRequestEvent requestEvent) {
+		Map<UUID, Account> snapshot = getAccountsSnapshot();
 
 		if(isNewEvent(requestEvent)) {
 			events.add(requestEvent);
 
-			Integer newId = apply(requestEvent, snapshot);
+			UUID newId = apply(requestEvent, snapshot);
 
 			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.transactionId, newId);
 			events.add(createdEvent);
@@ -39,9 +40,9 @@ public class InMemoryAccountRepository implements AccountRepository {
 		}
 	}
 
-	private Integer apply(AccountCreateRequestEvent requestEvent, Map<Integer, Account> accounts) {
-		Integer newId = accounts.size() + 1;
-		Account newAccount = new Account(newId, requestEvent.startingBalance);
+	private UUID apply(AccountCreateRequestEvent requestEvent, Map<UUID, Account> accounts) {
+		UUID newId = requestEvent.transactionId;
+		Account newAccount = new Account(requestEvent.transactionId, requestEvent.startingBalance);
 		accounts.put(newId, newAccount);
 		return newId;
 	}
@@ -57,12 +58,18 @@ public class InMemoryAccountRepository implements AccountRepository {
 		}
 	}
 
-	private void apply(AccountUpdateRequestEvent requestEvent, Map<Integer, Account> accounts) {
+	private void apply(AccountUpdateRequestEvent requestEvent, Map<UUID, Account> accounts) {
 		accounts.put(requestEvent.account.accountNumber, requestEvent.account);
 	}
 
 	@Override
-	public Account load(Integer accountNumber) {
+	public Account load(UUID accountNumber) {
+		Map<UUID, Account> snapshot = getAccountsSnapshot();
+
+		if(! snapshot.containsKey(accountNumber)) {
+			throw new RuntimeException("AccountNumber ["+accountNumber+"] did not exist");
+		}
+
 		return getAccountsSnapshot().get(accountNumber);
 	}
 
@@ -75,8 +82,8 @@ public class InMemoryAccountRepository implements AccountRepository {
 		return ! events.contains(event);
 	}
 
-	protected Map<Integer, Account> getAccountsSnapshot() {
-		Map<Integer, Account> accounts = new HashMap<>();
+	protected Map<UUID, Account> getAccountsSnapshot() {
+		Map<UUID, Account> accounts = new HashMap<>();
 
 		for(Event e : events) {
 			if(e instanceof AccountCreateRequestEvent) {
