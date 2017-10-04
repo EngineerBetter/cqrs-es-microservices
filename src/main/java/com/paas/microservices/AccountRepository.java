@@ -10,6 +10,4 @@ public interface AccountRepository {
 	Account load(UUID accountNumber);
 
 	Integer getTotalNumberOfAccounts();
-
-	TransactionHistory getTransactionHistory(UUID accountNumber);
 }

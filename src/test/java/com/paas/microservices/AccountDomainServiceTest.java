@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -106,7 +105,6 @@ public class AccountDomainServiceTest {
 		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 30d);
 	}
 
-	@Ignore
 	@Test
 	public void transactionHistoriesAreGettable() {
 		assertThat(account.balance).isEqualTo(0);
@@ -118,7 +116,7 @@ public class AccountDomainServiceTest {
 
 		TransactionHistory history = accountService.getTransactionHistory(account.accountNumber);
 		assertThat(history.transactions.get(0)).isEqualTo(new TransactionRow(TransactionType.CREDIT, 50d, 50d));
-		assertThat(history.transactions.get(0)).isEqualTo(new TransactionRow(TransactionType.CREDIT, 125d, 175d));
+		assertThat(history.transactions.get(1)).isEqualTo(new TransactionRow(TransactionType.CREDIT, 125d, 175d));
 
 		List<TransactionRow> rows = Arrays.asList(new TransactionRow(TransactionType.CREDIT, 50d, 50d), new TransactionRow(TransactionType.CREDIT, 125d, 175d));
 		TransactionHistory expected = new TransactionHistory(rows);

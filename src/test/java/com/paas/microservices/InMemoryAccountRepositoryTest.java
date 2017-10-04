@@ -22,7 +22,7 @@ public class InMemoryAccountRepositoryTest {
 	public void accountsAreCreatable() {
 		assertThat(repo.getAccountsSnapshot().size()).isEqualTo(0);
 		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(UUID.randomUUID(), 0d);
-		UUID createdId = repo.create(requestEvent);
+		repo.create(requestEvent);
 		assertThat(repo.getAccountsSnapshot().size()).isEqualTo(1);
 	}
 

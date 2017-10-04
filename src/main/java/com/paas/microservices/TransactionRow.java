@@ -49,5 +49,8 @@ public class TransactionRow {
 		return true;
 	}
 
-
+	@Override
+	public String toString() {
+		return "TransactionRow [type=" + type + ", amount=" + amount + ", balance=" + balance + "]";
+	}
 }

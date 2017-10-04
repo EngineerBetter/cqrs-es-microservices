@@ -76,12 +76,6 @@ public class InMemoryAccountRepository implements AccountRepository {
 		return getAccountsSnapshot().size();
 	}
 
-	@Override
-	public TransactionHistory getTransactionHistory(UUID accountNumber) {
-		return null;
-
-	}
-
 	protected Map<UUID, Account> getAccountsSnapshot() {
 		Map<UUID, Account> accounts = new HashMap<>();
 
