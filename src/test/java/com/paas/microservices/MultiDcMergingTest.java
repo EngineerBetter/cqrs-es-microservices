@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.paas.microservices.data.InMemoryAccountRepository;
@@ -57,7 +56,6 @@ public class MultiDcMergingTest {
 		assertThat(balance).isEqualTo(60d);
 	}
 
-	@Ignore
 	@Test
 	public void debitsThatResultInOverdrawnAccountsAreRejectedOnMerge() {
 		UUID accountNumber = UUID.randomUUID();

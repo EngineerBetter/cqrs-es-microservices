@@ -13,10 +13,6 @@ import org.junit.Test;
 import com.paas.microservices.Account;
 import com.paas.microservices.Event;
 import com.paas.microservices.StoringEventBus;
-import com.paas.microservices.data.AccountBalanceSetRequestDataEvent;
-import com.paas.microservices.data.AccountCreateRequestDataEvent;
-import com.paas.microservices.data.AccountCreatedDataEvent;
-import com.paas.microservices.data.InMemoryAccountRepository;
 
 public class InMemoryAccountRepositoryTest {
 	private InMemoryAccountRepository repo;
@@ -38,7 +34,7 @@ public class InMemoryAccountRepositoryTest {
 	public void writtenAccountsAreReadable() {
 		UUID accountNumber = UUID.randomUUID();
 		Account account = new Account(accountNumber, 123.12d);
-		Account returned = repo.save(new AccountBalanceSetRequestDataEvent(UUID.randomUUID(), account));
+		Account returned = repo.save(new AccountBalanceSetRequestDataEvent(UUID.randomUUID(), account, null));
 		assertThat(returned).isEqualTo(account);
 
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(1);

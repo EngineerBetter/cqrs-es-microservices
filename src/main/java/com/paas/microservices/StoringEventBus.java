@@ -8,21 +8,29 @@ import java.util.Set;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
+import com.paas.microservices.data.AccountBalanceSetRequestDataEvent;
+import com.paas.microservices.domain.AccountDebitedDomainEvent;
 
 public class StoringEventBus implements SubscriberExceptionHandler {
 	private final EventBus eventBus;
 	private final Set<Event> seenEvents;
 	private final Set<Throwable> exceptionsThrown;
+	private final Set<Event> failedEvents;
 
 	public StoringEventBus() {
 		this.eventBus = new EventBus(this);
 		this.seenEvents = new LinkedHashSet<>();
 		this.exceptionsThrown = new HashSet<>();
+		this.failedEvents = new HashSet<>();
 	}
 
 	@Override
 	public void handleException(Throwable exception, SubscriberExceptionContext context) {
 		exceptionsThrown.add(exception);
+		Object event = context.getEvent();
+		if(event instanceof Event) {
+			failedEvents.add((Event) event);
+		}
 	}
 
 	public boolean exceptionThrownMatching(Throwable exception) {
@@ -55,7 +63,24 @@ public class StoringEventBus implements SubscriberExceptionHandler {
 		seenEvents.clear();
 
 		for (Event event : otherEvents) {
-			post(event);
+			boolean shouldSkip = false;
+			if(event instanceof AccountBalanceSetRequestDataEvent) {
+				AccountBalanceSetRequestDataEvent causable = (AccountBalanceSetRequestDataEvent) event;
+				if(failedEvents.contains(causable.cause)) {
+					shouldSkip = true;
+				}
+			}
+
+			if(event instanceof AccountDebitedDomainEvent) {
+				AccountDebitedDomainEvent causable = (AccountDebitedDomainEvent) event;
+				if(failedEvents.contains(causable.cause)) {
+					shouldSkip = true;
+				}
+			}
+
+			if(!shouldSkip) {
+				post(event);
+			}
 		}
 	}
 }
