@@ -1,5 +1,6 @@
 package com.paas.microservices;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -7,7 +8,7 @@ public class TransactionHistory {
 	public final List<TransactionRow> transactions;
 
 	public TransactionHistory(List<TransactionRow> transactions) {
-		this.transactions = Collections.unmodifiableList(transactions);
+		this.transactions = Collections.unmodifiableList(new ArrayList<>(transactions));
 	}
 
 	@Override

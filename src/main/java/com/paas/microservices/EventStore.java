@@ -25,7 +25,7 @@ public class EventStore {
 	}
 
 	public Set<Event> getEvents() {
-		return Collections.unmodifiableSet(events);
+		return Collections.unmodifiableSet(new LinkedHashSet<>(events));
 	}
 
 	@Override

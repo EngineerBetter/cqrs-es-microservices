@@ -31,7 +31,7 @@ public class StoringEventBus {
 	}
 
 	public Set<Event> getEvents() {
-		return Collections.unmodifiableSet(seenEvents);
+		return Collections.unmodifiableSet(new LinkedHashSet<>(seenEvents));
 	}
 
 	public void importEvents(Set<Event> otherEvents) {
