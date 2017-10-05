@@ -35,15 +35,16 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	@Override
-	public void creditAccount(UUID eventId, UUID accountNumber, double amount) {
-		double previousBalance = getBalance(accountNumber);
-		double newBalance = previousBalance + amount;
-		Account account = new Account(accountNumber, newBalance);
-		AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(eventId, account);
+	@Subscribe
+	public void creditAccount(AccountCreditRequestDomainEvent event) {
+		double previousBalance = getBalance(event.accountNumber);
+		double newBalance = previousBalance + event.amount;
+		Account account = new Account(event.accountNumber, newBalance);
+		AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(event.eventId, account);
 		eventBus.post(updateRequest);
-		eventBus.post(new AccountCreditedDomainEvent(eventId, accountNumber, amount, newBalance));
+		eventBus.post(new AccountCreditedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance));
 
-		addToHistory(account, TransactionType.CREDIT, amount);
+		addToHistory(account, TransactionType.CREDIT, event.amount);
 	}
 
 	private void addToHistory(Account account, TransactionType type, double amount) {

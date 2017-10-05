@@ -14,11 +14,6 @@ import com.paas.microservices.AccountGetter;
 import com.paas.microservices.StoringEventBus;
 import com.paas.microservices.data.AccountRepository;
 import com.paas.microservices.data.InMemoryAccountRepository;
-import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
-import com.paas.microservices.domain.AccountDomainService;
-import com.paas.microservices.domain.RepositoryAccountDomainService;
-import com.paas.microservices.domain.TransactionHistory;
-import com.paas.microservices.domain.TransactionRow;
 import com.paas.microservices.domain.TransactionRow.TransactionType;
 
 public class AccountDomainServiceTest {
@@ -62,11 +57,11 @@ public class AccountDomainServiceTest {
 	public void accountsAreCreditable() {
 		assertThat(account.balance).isEqualTo(0);
 
-		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 50d);
+		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(50d);
 
-		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 50d);
+		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
 		balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(100d);
 	}
@@ -76,8 +71,8 @@ public class AccountDomainServiceTest {
 		assertThat(account.balance).isEqualTo(0);
 
 		UUID creditTxId = UUID.randomUUID();
-		accountService.creditAccount(creditTxId, account.accountNumber, 50d);
-		accountService.creditAccount(creditTxId, account.accountNumber, 50d);
+		eventBus.post(new AccountCreditRequestDomainEvent(creditTxId, account.accountNumber, 50d));
+		eventBus.post(new AccountCreditRequestDomainEvent(creditTxId, account.accountNumber, 50d));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(50d);
 	}
@@ -85,7 +80,7 @@ public class AccountDomainServiceTest {
 	@Test
 	public void accountsAreDebitable() {
 		assertThat(account.balance).isEqualTo(0);
-		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 200d);
+		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 200d));
 
 		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 100d);
 		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 50d);
@@ -98,7 +93,7 @@ public class AccountDomainServiceTest {
 		assertThat(account.balance).isEqualTo(0);
 
 		UUID creditTxID = UUID.randomUUID();
-		accountService.creditAccount(creditTxID, account.accountNumber, 100d);
+		eventBus.post(new AccountCreditRequestDomainEvent(creditTxID, account.accountNumber, 100d));
 		UUID debitTxID = UUID.randomUUID();
 		accountService.debitAccount(debitTxID, account.accountNumber, 30d);
 		accountService.debitAccount(debitTxID, account.accountNumber, 30d);
@@ -122,8 +117,8 @@ public class AccountDomainServiceTest {
 	public void transactionHistoriesAreGettable() {
 		assertThat(account.balance).isEqualTo(0);
 
-		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 50d);
-		accountService.creditAccount(UUID.randomUUID(), account.accountNumber, 125d);
+		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
+		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 125d));
 		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 30d);
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(145d);
