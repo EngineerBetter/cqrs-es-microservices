@@ -3,9 +3,10 @@ package com.paas.microservices.data;
 import java.util.UUID;
 
 import com.paas.microservices.Account;
+import com.paas.microservices.CausableEvent;
 import com.paas.microservices.Event;
 
-public class AccountBalanceSetRequestDataEvent implements Event {
+public class AccountBalanceSetRequestDataEvent implements CausableEvent {
 	public final UUID eventId;
 	public final Account account;
 	public final Event cause;
@@ -15,6 +16,11 @@ public class AccountBalanceSetRequestDataEvent implements Event {
 		this.eventId = eventId;
 		this.account = account;
 		this.cause = cause;
+	}
+
+	@Override
+	public Event getCause() {
+		return cause;
 	}
 
 

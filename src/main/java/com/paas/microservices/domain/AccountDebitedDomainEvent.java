@@ -2,9 +2,10 @@ package com.paas.microservices.domain;
 
 import java.util.UUID;
 
+import com.paas.microservices.CausableEvent;
 import com.paas.microservices.Event;
 
-public class AccountDebitedDomainEvent implements Event {
+public class AccountDebitedDomainEvent implements CausableEvent {
 	public final UUID eventId;
 	public final UUID accountNumber;
 	public final double amount;
@@ -17,6 +18,11 @@ public class AccountDebitedDomainEvent implements Event {
 		this.amount = amount;
 		this.resultingBalance = resultingBalance;
 		this.cause = cause;
+	}
+
+	@Override
+	public Event getCause() {
+		return cause;
 	}
 
 	@Override

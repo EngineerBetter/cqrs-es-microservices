@@ -8,8 +8,6 @@ import java.util.Set;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
-import com.paas.microservices.data.AccountBalanceSetRequestDataEvent;
-import com.paas.microservices.domain.AccountDebitedDomainEvent;
 
 public class StoringEventBus implements SubscriberExceptionHandler {
 	private final EventBus eventBus;
@@ -64,16 +62,9 @@ public class StoringEventBus implements SubscriberExceptionHandler {
 
 		for (Event event : otherEvents) {
 			boolean shouldSkip = false;
-			if(event instanceof AccountBalanceSetRequestDataEvent) {
-				AccountBalanceSetRequestDataEvent causable = (AccountBalanceSetRequestDataEvent) event;
-				if(failedEvents.contains(causable.cause)) {
-					shouldSkip = true;
-				}
-			}
-
-			if(event instanceof AccountDebitedDomainEvent) {
-				AccountDebitedDomainEvent causable = (AccountDebitedDomainEvent) event;
-				if(failedEvents.contains(causable.cause)) {
+			if(event instanceof CausableEvent) {
+				CausableEvent causable = (CausableEvent) event;
+				if(failedEvents.contains(causable.getCause())) {
 					shouldSkip = true;
 				}
 			}
