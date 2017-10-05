@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.paas.microservices.data.InMemoryAccountRepository;
 import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
 import com.paas.microservices.domain.AccountCreditRequestDomainEvent;
+import com.paas.microservices.domain.AccountDebitRequestDomainEvent;
 import com.paas.microservices.domain.RepositoryAccountDomainService;
 
 public class MultiDcMergingTest {
@@ -67,10 +68,10 @@ public class MultiDcMergingTest {
 		assertThat(leftService.getBalance(accountNumber)).isEqualTo(100d);
 		assertThat(rightService.getBalance(accountNumber)).isEqualTo(100d);
 
-		leftService.debitAccount(UUID.randomUUID(), accountNumber, 70d);
+		leftEventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), accountNumber, 70d));
 		assertThat(leftService.getBalance(accountNumber)).isEqualTo(30d);
 
-		rightService.debitAccount(UUID.randomUUID(), accountNumber, 60d);
+		rightEventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), accountNumber, 60d));
 		assertThat(rightService.getBalance(accountNumber)).isEqualTo(40d);
 
 		merge();

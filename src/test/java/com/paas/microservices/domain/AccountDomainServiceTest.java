@@ -5,9 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import com.paas.microservices.Account;
 import com.paas.microservices.AccountGetter;
@@ -20,11 +18,13 @@ public class AccountDomainServiceTest {
 	private AccountRepository repo;
 	private AccountDomainService accountService;
 	private StoringEventBus eventBus;
+	private ExceptionEventHandler exceptionHandler;
 	private Account account;
 
 	@Before
 	public void setup() {
-		eventBus = new StoringEventBus();
+		exceptionHandler = new ExceptionEventHandler();
+		eventBus = new StoringEventBus(exceptionHandler);
 		repo = new InMemoryAccountRepository(eventBus);
 		accountService = new RepositoryAccountDomainService(repo, eventBus);
 		createAccount();
@@ -82,8 +82,8 @@ public class AccountDomainServiceTest {
 		assertThat(account.balance).isEqualTo(0);
 		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 200d));
 
-		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 100d);
-		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 50d);
+		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 100d));
+		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(50);
 	}
@@ -95,22 +95,19 @@ public class AccountDomainServiceTest {
 		UUID creditTxID = UUID.randomUUID();
 		eventBus.post(new AccountCreditRequestDomainEvent(creditTxID, account.accountNumber, 100d));
 		UUID debitTxID = UUID.randomUUID();
-		accountService.debitAccount(debitTxID, account.accountNumber, 30d);
-		accountService.debitAccount(debitTxID, account.accountNumber, 30d);
+		eventBus.post(new AccountDebitRequestDomainEvent(debitTxID, account.accountNumber, 30d));
+		eventBus.post(new AccountDebitRequestDomainEvent(debitTxID, account.accountNumber, 30d));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(70d);
 	}
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
 
 	@Test
 	public void accountsCannotBeDebitedBelowZero() {
-		expectedException.expect(RuntimeException.class);
-		expectedException.expectMessage("You are trying to debit more than your account balance currently has");
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(0d);
-		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 30d);
+		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 30d));
+		exceptionHandler.contains(new RuntimeException("You are trying to debit more than your account balance currently has"));
 	}
 
 	@Test
@@ -119,7 +116,7 @@ public class AccountDomainServiceTest {
 
 		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
 		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 125d));
-		accountService.debitAccount(UUID.randomUUID(), account.accountNumber, 30d);
+		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 30d));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(145d);
 

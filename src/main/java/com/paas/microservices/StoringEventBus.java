@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.SubscriberExceptionHandler;
 
 public class StoringEventBus {
 	private final EventBus eventBus;
@@ -12,6 +13,11 @@ public class StoringEventBus {
 
 	public StoringEventBus() {
 		this.eventBus = new EventBus();
+		this.seenEvents = new LinkedHashSet<>();
+	}
+
+	public StoringEventBus(SubscriberExceptionHandler exceptionHandler) {
+		this.eventBus = new EventBus(exceptionHandler);
 		this.seenEvents = new LinkedHashSet<>();
 	}
 

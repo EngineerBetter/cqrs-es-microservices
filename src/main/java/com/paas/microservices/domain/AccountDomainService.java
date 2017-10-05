@@ -8,9 +8,9 @@ public interface AccountDomainService {
 
 	void creditAccount(AccountCreditRequestDomainEvent event);
 
-	double getBalance(UUID accountNumber);
+	void debitAccount(AccountDebitRequestDomainEvent event);
 
-	void debitAccount(UUID debitTxId, UUID accountNumber, double amountToBeDebited);
+	double getBalance(UUID accountNumber);
 
 	TransactionHistory getTransactionHistory(UUID accountNumber);
 }
