@@ -9,6 +9,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.paas.microservices.data.AccountRepository;
+import com.paas.microservices.data.InMemoryAccountRepository;
 import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
 import com.paas.microservices.domain.AccountDomainService;
 import com.paas.microservices.domain.RepositoryAccountDomainService;

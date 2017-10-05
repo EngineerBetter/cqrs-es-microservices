@@ -10,6 +10,11 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.paas.microservices.data.AccountBalanceSetRequestDataEvent;
+import com.paas.microservices.data.AccountCreateRequestDataEvent;
+import com.paas.microservices.data.AccountCreatedDataEvent;
+import com.paas.microservices.data.InMemoryAccountRepository;
+
 public class InMemoryAccountRepositoryTest {
 	private InMemoryAccountRepository repo;
 

@@ -1,6 +1,8 @@
-package com.paas.microservices;
+package com.paas.microservices.data;
 
 import java.util.UUID;
+
+import com.paas.microservices.Event;
 
 public class AccountCreateRequestDataEvent implements Event {
 	public final UUID eventId;

@@ -1,6 +1,8 @@
-package com.paas.microservices;
+package com.paas.microservices.data;
 
 import java.util.UUID;
+
+import com.paas.microservices.Account;
 
 public interface AccountRepository {
 	void create(AccountCreateRequestDataEvent event);

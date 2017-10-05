@@ -1,10 +1,14 @@
-package com.paas.microservices;
+package com.paas.microservices.data;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import com.google.common.eventbus.Subscribe;
+import com.paas.microservices.Account;
+import com.paas.microservices.ResetHandler;
+import com.paas.microservices.ResetStateEvent;
+import com.paas.microservices.StoringEventBus;
 
 public class InMemoryAccountRepository implements AccountRepository, ResetHandler {
 	private final StoringEventBus eventBus;

@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.paas.microservices.data.InMemoryAccountRepository;
 import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
 import com.paas.microservices.domain.RepositoryAccountDomainService;
 
