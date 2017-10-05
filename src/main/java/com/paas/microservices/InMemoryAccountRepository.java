@@ -37,9 +37,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 	@Override
 	public Account load(UUID accountNumber) {
-		Map<UUID, Account> snapshot = accounts;
-
-		if(! snapshot.containsKey(accountNumber)) {
+		if(! accounts.containsKey(accountNumber)) {
 			throw new RuntimeException("AccountNumber ["+accountNumber+"] did not exist");
 		}
 
