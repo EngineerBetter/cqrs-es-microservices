@@ -1,7 +1,7 @@
 package com.paas.microservices;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -9,13 +9,14 @@ import com.paas.microservices.TransactionRow.TransactionType;
 
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
-	Map<UUID, TransactionRow> transactions;
 	private final StoringEventBus eventBus;
+	private Map<UUID, TransactionHistory> histories;
 
 	public RepositoryAccountDomainService(AccountRepository repo, StoringEventBus eventBus) {
 		this.repo = repo;
 		this.eventBus = eventBus;
 		eventBus.register(this);
+		this.histories = new HashMap<>();
 	}
 
 	@Override
@@ -33,6 +34,14 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(eventId, account);
 		eventBus.post(updateRequest);
 		eventBus.post(new AccountCreditedEvent(eventId, accountNumber, amount, newBalance));
+
+		addToHistory(account, TransactionType.CREDIT, amount);
+	}
+
+	private void addToHistory(Account account, TransactionType type, double amount) {
+		TransactionRow newTransaction = new TransactionRow(type, amount, account.balance);
+		TransactionHistory newHistory = getOrNewTransactionHistory(account.accountNumber).buildNewHistoryWith(newTransaction);
+		histories.put(account.accountNumber, newHistory);
 	}
 
 	@Override
@@ -42,15 +51,17 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	@Override
-	public void debitAccount(UUID debitEventId, UUID accountNumber, double amountToBeDebited) {
+	public void debitAccount(UUID debitEventId, UUID accountNumber, double amount) {
 		double previousBalance = getBalance(accountNumber);
-		double newBalance = previousBalance - amountToBeDebited;
+		double newBalance = previousBalance - amount;
 
 		if(newBalance >= 0d) {
 			Account account = new Account(accountNumber, newBalance);
 			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitEventId, account);
 			eventBus.post(updateRequest);
-			eventBus.post(new AccountDebitedEvent(debitEventId, accountNumber, amountToBeDebited, newBalance));
+			eventBus.post(new AccountDebitedEvent(debitEventId, accountNumber, amount, newBalance));
+
+			addToHistory(account, TransactionType.DEBIT, amount);
 		} else {
 			//TODO: create a failed debit event
 			throw new RuntimeException("You are trying to debit more than your account balance currently has");
@@ -59,20 +70,10 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 
 	@Override
 	public TransactionHistory getTransactionHistory(UUID accountNumber) {
-		List<TransactionRow> rows = new ArrayList<>();
+		return histories.get(accountNumber);
+	}
 
-		for(Event e : eventBus.getEvents()) {
-			if(e instanceof AccountCreditedEvent && accountNumber.equals(((AccountCreditedEvent) e).accountNumber)) {
-				AccountCreditedEvent cae = (AccountCreditedEvent) e;
-				rows.add(new TransactionRow(TransactionType.CREDIT,cae.amount, cae.resultingBalance));
-			}
-
-			if(e instanceof AccountDebitedEvent && accountNumber.equals(((AccountDebitedEvent) e).accountNumber)) {
-				AccountDebitedEvent cae = (AccountDebitedEvent) e;
-				rows.add(new TransactionRow(TransactionType.DEBIT,cae.amount, cae.resultingBalance));
-			}
-		}
-
-		return new TransactionHistory(rows);
+	private TransactionHistory getOrNewTransactionHistory(UUID accountNumber) {
+		return histories.getOrDefault(accountNumber, new TransactionHistory(new ArrayList<>()));
 	}
 }

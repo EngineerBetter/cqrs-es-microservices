@@ -11,6 +11,12 @@ public class TransactionHistory {
 		this.transactions = Collections.unmodifiableList(new ArrayList<>(transactions));
 	}
 
+	public TransactionHistory buildNewHistoryWith(TransactionRow newRow) {
+		List<TransactionRow> newRows = new ArrayList<>(transactions);
+		newRows.add(newRow);
+		return new TransactionHistory(newRows);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
