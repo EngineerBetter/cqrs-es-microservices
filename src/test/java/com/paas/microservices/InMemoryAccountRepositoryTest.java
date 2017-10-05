@@ -45,14 +45,14 @@ public class InMemoryAccountRepositoryTest {
 		StoringEventBus leftEventBus = new StoringEventBus();
 		left = new InMemoryAccountRepository(leftEventBus);
 
-		assertThat(left.getEvents().size()).isEqualTo(0);
+		assertThat(leftEventBus.getEvents().size()).isEqualTo(0);
 
 		UUID createdAccountNumber = UUID.randomUUID();
 		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(createdAccountNumber, 0d);
 		leftEventBus.post(requestEvent);
-		assertThat(left.getEvents().size()).isEqualTo(2);
+		assertThat(leftEventBus.getEvents().size()).isEqualTo(2);
 
-		Set<Event> leftEvents = left.getEvents();
+		Set<Event> leftEvents = leftEventBus.getEvents();
 		assertThat(leftEvents).contains(requestEvent);
 		assertThat(leftEvents.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
@@ -62,8 +62,8 @@ public class InMemoryAccountRepositoryTest {
 				.collect(Collectors.toList()).size()).isEqualTo(1);
 
 
-		left.importEvents(leftEvents);
-		Set<Event> leftEventsAfterImport = left.getEvents();
+		leftEventBus.importEvents(leftEvents);
+		Set<Event> leftEventsAfterImport = leftEventBus.getEvents();
 		assertThat(leftEventsAfterImport).contains(requestEvent);
 		assertThat(leftEventsAfterImport.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)
@@ -82,17 +82,22 @@ public class InMemoryAccountRepositoryTest {
 		right = new InMemoryAccountRepository(rightEventBus);
 
 		assertCreateRequestResultsInTwoEvents(left, leftEventBus);
+		assertThat(left.getTotalNumberOfAccounts()).isEqualTo(1);
 		assertCreateRequestResultsInTwoEvents(right, rightEventBus);
+		assertThat(right.getTotalNumberOfAccounts()).isEqualTo(1);
 
-		Set<Event> leftEvents = left.getEvents();
-		Set<Event> rightEvents = right.getEvents();
+
+		Set<Event> leftEvents = leftEventBus.getEvents();
+		Set<Event> rightEvents = rightEventBus.getEvents();
 		Set<Event> mergedEvents = new LinkedHashSet<>();
 		mergedEvents.addAll(leftEvents);
 		mergedEvents.addAll(rightEvents);
-		left.importEvents(mergedEvents);
-		right.importEvents(mergedEvents);
-		assertThat(left.getEvents()).isEqualTo(mergedEvents);
-		assertThat(right.getEvents()).isEqualTo(mergedEvents);
+		leftEventBus.importEvents(mergedEvents);
+		rightEventBus.importEvents(mergedEvents);
+		assertThat(leftEventBus.getEvents()).isEqualTo(mergedEvents);
+		assertThat(rightEventBus.getEvents()).isEqualTo(mergedEvents);
+		assertThat(left.getTotalNumberOfAccounts()).isEqualTo(2);
+		assertThat(right.getTotalNumberOfAccounts()).isEqualTo(2);
 	}
 
 	@Test
@@ -108,8 +113,8 @@ public class InMemoryAccountRepositoryTest {
 		leftEventBus.post(requestEvent);
 		rightEventBus.post(requestEvent);
 
-		Set<Event> leftEvents = left.getEvents();
-		Set<Event> rightEvents = right.getEvents();
+		Set<Event> leftEvents = leftEventBus.getEvents();
+		Set<Event> rightEvents = rightEventBus.getEvents();
 		Set<Event> mergedEvents = new LinkedHashSet<>();
 		mergedEvents.addAll(leftEvents);
 		mergedEvents.addAll(rightEvents);
@@ -120,9 +125,9 @@ public class InMemoryAccountRepositoryTest {
 		UUID createdAccountNumber = UUID.randomUUID();
 		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(createdAccountNumber, 0d);
 		eventBus.post(requestEvent);
-		assertThat(repo.getEvents().size()).isEqualTo(2);
+		assertThat(eventBus.getEvents().size()).isEqualTo(2);
 
-		Set<Event> leftEvents = repo.getEvents();
+		Set<Event> leftEvents = eventBus.getEvents();
 		assertThat(leftEvents).contains(requestEvent);
 		assertThat(leftEvents.stream()
 				.filter(e -> e instanceof AccountCreatedEvent)

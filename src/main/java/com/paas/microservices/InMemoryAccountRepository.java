@@ -2,12 +2,11 @@ package com.paas.microservices;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.eventbus.Subscribe;
 
-public class InMemoryAccountRepository implements AccountRepository {
+public class InMemoryAccountRepository implements AccountRepository, ResetHandler {
 	private final StoringEventBus eventBus;
 	private final Map<UUID, Account> accounts;
 
@@ -15,6 +14,11 @@ public class InMemoryAccountRepository implements AccountRepository {
 		this.eventBus = eventBus;
 		eventBus.register(this);
 		this.accounts = new HashMap<>();
+	}
+
+	@Override
+	public void handle(ResetStateEvent event) {
+		accounts.clear();
 	}
 
 	@Override
@@ -47,14 +51,5 @@ public class InMemoryAccountRepository implements AccountRepository {
 	@Override
 	public Integer getTotalNumberOfAccounts() {
 		return accounts.size();
-	}
-
-
-	public void importEvents(Set<Event> other) {
-		eventBus.importEvents(other);
-	}
-
-	public Set<Event> getEvents() {
-		return eventBus.getEvents();
 	}
 }

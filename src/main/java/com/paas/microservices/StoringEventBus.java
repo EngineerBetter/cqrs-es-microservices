@@ -16,7 +16,7 @@ public class StoringEventBus {
 	}
 
 	public void post(Event event) {
-		if(! seenEvents.contains(event)) {
+		if (!seenEvents.contains(event)) {
 			seenEvents.add(event);
 			eventBus.post(event);
 		}
@@ -35,6 +35,11 @@ public class StoringEventBus {
 	}
 
 	public void importEvents(Set<Event> otherEvents) {
-        seenEvents.addAll(otherEvents);
+		eventBus.post(new ResetStateEvent());
+		seenEvents.clear();
+
+		for (Event event : otherEvents) {
+			post(event);
+		}
 	}
 }

@@ -34,11 +34,11 @@ public class MultiDcMergingTest {
 		rightService.creditAccount(UUID.randomUUID(), rightAccount.accountNumber, 60d);
 
 		Set<Event> merged = new LinkedHashSet<>();
-		merged.addAll(leftRepo.getEvents());
-		merged.addAll(rightRepo.getEvents());
+		merged.addAll(leftEventBus.getEvents());
+		merged.addAll(rightEventBus.getEvents());
 
-		leftRepo.importEvents(merged);
-		assertThat(leftRepo.getEvents().size()).isEqualTo(8); //More messages created by domain service
+		leftEventBus.importEvents(merged);
+		assertThat(leftEventBus.getEvents().size()).isEqualTo(8); //More messages created by domain service
 		double balance = leftService.getBalance(leftAccount.accountNumber);
 		assertThat(balance).isEqualTo(100d);
 	}
@@ -80,10 +80,10 @@ public class MultiDcMergingTest {
 
 	private void mergeRepos() {
 		Set<Event> merged = new LinkedHashSet<>();
-		merged.addAll(leftRepo.getEvents());
-		merged.addAll(rightRepo.getEvents());
+		merged.addAll(leftEventBus.getEvents());
+		merged.addAll(rightEventBus.getEvents());
 
-		leftRepo.importEvents(merged);
-		rightRepo.importEvents(merged);
+		leftEventBus.importEvents(merged);
+		rightEventBus.importEvents(merged);
 	}
 }
