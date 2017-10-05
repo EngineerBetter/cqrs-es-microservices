@@ -22,26 +22,29 @@ public class AccountDomainServiceTest {
 		eventBus = new StoringEventBus();
 		repo = new InMemoryAccountRepository(eventBus);
 		accountService = new RepositoryAccountDomainService(repo, eventBus);
-		account = createAccount();
+		createAccount();
 	}
 
-	private Account createAccount() {
-		UUID transactionId = UUID.randomUUID();
-		Account created = accountService.createAccount(transactionId);
-		return created;
+
+	private void createAccount() {
+		AccountGetter getter = new AccountGetter();
+		eventBus.register(getter);
+		AccountCreateRequestDomainEvent event = new AccountCreateRequestDomainEvent(UUID.randomUUID());
+		eventBus.post(event);
+		account = getter.getAccount();
 	}
 
 	@Test
 	public void newAccountsHaveAZeroBalance() {
-		assertThat(account.balance).isEqualTo(0d);
+		assertThat(this.account.balance).isEqualTo(0d);
 	}
 
 	@Test
 	public void createAccountRequestsAreIdempotent() {
-		UUID transactionId = UUID.randomUUID();
+		AccountCreateRequestDomainEvent event = new AccountCreateRequestDomainEvent(UUID.randomUUID());
 		int accountsBefore = repo.getTotalNumberOfAccounts();
-		accountService.createAccount(transactionId);
-		accountService.createAccount(transactionId);
+		eventBus.post(event);
+		eventBus.post(event);
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(accountsBefore + 1);
 	}
 

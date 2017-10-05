@@ -27,8 +27,13 @@ public class MultiDcMergingTest {
 
 	@Test
 	public void accountNumbersDoNotClash() {
-		Account leftAccount = leftService.createAccount(UUID.randomUUID());
-		Account rightAccount = rightService.createAccount(UUID.randomUUID());
+		AccountGetter thingy = new AccountGetter();
+		leftEventBus.register(thingy);
+		rightEventBus.register(thingy);
+		leftEventBus.post(new AccountCreateRequestDomainEvent(UUID.randomUUID()));
+		Account leftAccount = thingy.getAccount();
+		rightEventBus.post(new AccountCreateRequestDomainEvent(UUID.randomUUID()));
+		Account rightAccount = thingy.getAccount();
 
 		leftService.creditAccount(UUID.randomUUID(), leftAccount.accountNumber, 100d);
 		rightService.creditAccount(UUID.randomUUID(), rightAccount.accountNumber, 60d);
@@ -38,16 +43,20 @@ public class MultiDcMergingTest {
 		merged.addAll(rightEventBus.getEvents());
 
 		leftEventBus.importEvents(merged);
-		assertThat(leftEventBus.getEvents().size()).isEqualTo(8); //More messages created by domain service
 		double balance = leftService.getBalance(leftAccount.accountNumber);
 		assertThat(balance).isEqualTo(100d);
+
+		rightEventBus.importEvents(merged);
+		balance = rightService.getBalance(rightAccount.accountNumber);
+		assertThat(balance).isEqualTo(60d);
 	}
 
 	@Ignore
 	@Test
 	public void debitsThatResultInOverdrawnAccountsAreRejectedOnMerge() {
 		UUID accountNumber = UUID.randomUUID();
-		leftService.createAccount(accountNumber);
+		AccountCreateRequestDomainEvent createReqEvent = new AccountCreateRequestDomainEvent(accountNumber);
+		leftEventBus.post(createReqEvent);
 		leftService.creditAccount(UUID.randomUUID(), accountNumber, 100d);
 		merge();
 		assertThat(leftService.getBalance(accountNumber)).isEqualTo(100d);

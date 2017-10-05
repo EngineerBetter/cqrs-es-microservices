@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.eventbus.Subscribe;
 import com.paas.microservices.TransactionRow.TransactionType;
 
 public class RepositoryAccountDomainService implements AccountDomainService {
@@ -20,10 +21,12 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	@Override
-	public Account createAccount(UUID eventId) {
+	@Subscribe
+	public void createAccount(AccountCreateRequestDomainEvent event) {
 		double startingBalance = 0d;
-		eventBus.post(new AccountCreateRequestDataEvent(eventId, startingBalance));
-		return new Account(eventId, startingBalance);
+		eventBus.post(new AccountCreateRequestDataEvent(event.eventId, startingBalance));
+		Account account = new Account(event.eventId, startingBalance);
+		eventBus.post(new AccountCreatedDomainEvent(event.eventId, account));
 	}
 
 	@Override

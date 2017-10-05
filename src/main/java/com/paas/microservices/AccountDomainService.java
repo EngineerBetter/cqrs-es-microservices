@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public interface AccountDomainService {
 
-	Account createAccount(UUID transactionId);
+	void createAccount(AccountCreateRequestDomainEvent event);
 
 	void creditAccount(UUID transactionId, UUID accountNumber, double amount);
 
