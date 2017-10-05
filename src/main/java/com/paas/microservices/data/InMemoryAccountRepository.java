@@ -32,7 +32,7 @@ public class InMemoryAccountRepository implements AccountRepository, ResetHandle
 		Account newAccount = new Account(requestEvent.eventId, requestEvent.startingBalance);
 		accounts.put(newId, newAccount);
 
-		AccountCreatedDataEvent createdEvent = new AccountCreatedDataEvent(requestEvent.eventId, newId);
+		AccountCreatedDataEvent createdEvent = new AccountCreatedDataEvent(requestEvent.eventId, newId, requestEvent);
 		eventBus.post(createdEvent);
 	}
 

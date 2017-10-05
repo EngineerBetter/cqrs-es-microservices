@@ -29,7 +29,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	@Subscribe
 	public void createAccount(AccountCreateRequestDomainEvent event) {
 		double startingBalance = 0d;
-		eventBus.post(new AccountCreateRequestDataEvent(event.eventId, startingBalance));
+		eventBus.post(new AccountCreateRequestDataEvent(event.eventId, startingBalance, event));
 		Account account = new Account(event.eventId, startingBalance);
 		eventBus.post(new AccountCreatedDomainEvent(event.eventId, account));
 	}
