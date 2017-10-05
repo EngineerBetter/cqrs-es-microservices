@@ -3,7 +3,6 @@ package com.paas.microservices;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import com.paas.microservices.TransactionRow.TransactionType;
@@ -76,13 +75,4 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 
 		return new TransactionHistory(rows);
 	}
-
-	public void importEvents(Set<Event> other) {
-		eventBus.importEvents(other);
-	}
-
-	public Set<Event> getEvents() {
-		return eventBus.getEvents();
-	}
-
 }

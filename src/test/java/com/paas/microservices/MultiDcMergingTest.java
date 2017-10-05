@@ -65,20 +65,6 @@ public class MultiDcMergingTest {
 	}
 
 	private void merge() {
-		mergeServices();
-		mergeRepos();
-	}
-
-	private void mergeServices() {
-		Set<Event> merged = new LinkedHashSet<>();
-		merged.addAll(leftService.getEvents());
-		merged.addAll(rightService.getEvents());
-
-		leftService.importEvents(merged);
-		rightService.importEvents(merged);
-	}
-
-	private void mergeRepos() {
 		Set<Event> merged = new LinkedHashSet<>();
 		merged.addAll(leftEventBus.getEvents());
 		merged.addAll(rightEventBus.getEvents());
