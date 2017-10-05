@@ -30,7 +30,7 @@ public class EventBusTest {
 
 	public static class NonRepeatingEventBus {
 		private final EventBus eventBus;
-		private final Set<TestEvent> seenEvents;
+		private final Set<Object> seenEvents;
 
 		public NonRepeatingEventBus(EventBus eventBus) {
 			this.eventBus = eventBus;
@@ -40,7 +40,7 @@ public class EventBusTest {
 		public void post(Object event) {
 			if(! seenEvents.contains(event)) {
 				eventBus.post(event);
-				seenEvents.add((TestEvent) event);
+				seenEvents.add(event);
 			}
 		}
 

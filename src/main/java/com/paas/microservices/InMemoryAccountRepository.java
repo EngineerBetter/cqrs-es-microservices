@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.eventbus.Subscribe;
+
 public class InMemoryAccountRepository implements AccountRepository {
 	private final EventStore eventStore;
 
@@ -13,7 +15,8 @@ public class InMemoryAccountRepository implements AccountRepository {
 	}
 
 	@Override
-	public UUID create(AccountCreateRequestEvent requestEvent) {
+	@Subscribe
+	public void create(AccountCreateRequestEvent requestEvent) {
 		Map<UUID, Account> snapshot = getAccountsSnapshot();
 
 		if(eventStore.isNewEvent(requestEvent)) {
@@ -23,13 +26,12 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
 			eventStore.add(createdEvent);
-			return newId;
 		} else {
 			for(Event e: eventStore.getEvents()) {
 				if(e instanceof AccountCreatedEvent) {
 					AccountCreatedEvent ace = (AccountCreatedEvent) e;
 					if(ace.parentEventId.equals(requestEvent.eventId)) {
-						return ace.createdId;
+						// Do nothing? Will be handled by EventBus?
 					}
 				}
 			}
@@ -46,6 +48,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 	}
 
 	@Override
+	@Subscribe
 	public Account save(AccountUpdateRequestEvent requestEvent) {
 		if(eventStore.isNewEvent(requestEvent)) {
 			eventStore.add(requestEvent);

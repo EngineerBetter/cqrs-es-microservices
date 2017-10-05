@@ -6,23 +6,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.eventbus.EventBus;
 import com.paas.microservices.TransactionRow.TransactionType;
 
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
 	Map<UUID, TransactionRow> transactions;
 	private final EventStore eventStore;
+	private final EventBus eventBus;
 
-	public RepositoryAccountDomainService(AccountRepository repo, EventStore eventStore) {
+	public RepositoryAccountDomainService(AccountRepository repo, EventStore eventStore, EventBus eventBus) {
 		this.repo = repo;
 		this.eventStore = eventStore;
+		this.eventBus = eventBus;
+		eventBus.register(repo);
 	}
 
 	@Override
-	public Account createAccount(UUID transactionId) {
+	public Account createAccount(UUID eventId) {
 		double startingBalance = 0d;
-		UUID createdId = repo.create(new AccountCreateRequestEvent(transactionId, startingBalance));
-		return new Account(createdId, startingBalance);
+		eventBus.post(new AccountCreateRequestEvent(eventId, startingBalance));
+		return new Account(eventId, startingBalance);
 	}
 
 	@Override
@@ -31,7 +35,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		double newBalance = previousBalance + amount;
 		Account account = new Account(accountNumber, newBalance);
 		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(eventId, account);
-		repo.save(updateRequest);
+		eventBus.post(updateRequest);
 		eventStore.add(new AccountCreditedEvent(eventId, accountNumber, amount, newBalance));
 	}
 
@@ -49,7 +53,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		if(newBalance >= 0d) {
 			Account account = new Account(accountNumber, newBalance);
 			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitEventId, account);
-			repo.save(updateRequest);
+			eventBus.post(updateRequest);
 			eventStore.add(new AccountDebitedEvent(debitEventId, accountNumber, amountToBeDebited, newBalance));
 		} else {
 			//TODO: create a failed debit event

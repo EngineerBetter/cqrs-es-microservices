@@ -9,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.google.common.eventbus.EventBus;
 import com.paas.microservices.TransactionRow.TransactionType;
 
 public class AccountDomainServiceTest {
@@ -21,7 +22,7 @@ public class AccountDomainServiceTest {
 	public void setup() {
 		eventStore = new EventStore();
 		repo = new InMemoryAccountRepository(eventStore);
-		accountService = new RepositoryAccountDomainService(repo, eventStore);
+		accountService = new RepositoryAccountDomainService(repo, eventStore, new EventBus());
 		account = createAccount();
 	}
 

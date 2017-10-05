@@ -46,8 +46,9 @@ public class InMemoryAccountRepositoryTest {
 
 		assertThat(left.getEvents().size()).isEqualTo(0);
 
-		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(UUID.randomUUID(), 0d);
-		UUID createdAccountNumber = left.create(requestEvent);
+		UUID createdAccountNumber = UUID.randomUUID();
+		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(createdAccountNumber, 0d);
+		left.create(requestEvent);
 		assertThat(left.getEvents().size()).isEqualTo(2);
 
 		Set<Event> leftEvents = left.getEvents();
@@ -110,8 +111,9 @@ public class InMemoryAccountRepositoryTest {
 	}
 
 	private void assertCreateRequestResultsInTwoEvents(InMemoryAccountRepository repo) {
-		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(UUID.randomUUID(), 0d);
-		UUID createdAccountNumber = repo.create(requestEvent);
+		UUID createdAccountNumber = UUID.randomUUID();
+		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(createdAccountNumber, 0d);
+		repo.create(requestEvent);
 		assertThat(repo.getEvents().size()).isEqualTo(2);
 
 		Set<Event> leftEvents = repo.getEvents();
