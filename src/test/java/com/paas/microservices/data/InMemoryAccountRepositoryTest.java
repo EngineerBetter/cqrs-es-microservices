@@ -1,4 +1,4 @@
-package com.paas.microservices;
+package com.paas.microservices.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.paas.microservices.Account;
+import com.paas.microservices.Event;
+import com.paas.microservices.StoringEventBus;
 import com.paas.microservices.data.AccountBalanceSetRequestDataEvent;
 import com.paas.microservices.data.AccountCreateRequestDataEvent;
 import com.paas.microservices.data.AccountCreatedDataEvent;

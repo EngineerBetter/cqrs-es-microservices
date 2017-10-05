@@ -1,4 +1,4 @@
-package com.paas.microservices;
+package com.paas.microservices.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -9,6 +9,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.paas.microservices.Account;
+import com.paas.microservices.AccountGetter;
+import com.paas.microservices.StoringEventBus;
 import com.paas.microservices.data.AccountRepository;
 import com.paas.microservices.data.InMemoryAccountRepository;
 import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
