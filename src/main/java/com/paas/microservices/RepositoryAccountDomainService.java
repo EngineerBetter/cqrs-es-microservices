@@ -22,7 +22,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	@Override
 	public Account createAccount(UUID eventId) {
 		double startingBalance = 0d;
-		eventBus.post(new AccountCreateRequestEvent(eventId, startingBalance));
+		eventBus.post(new AccountCreateRequestDataEvent(eventId, startingBalance));
 		return new Account(eventId, startingBalance);
 	}
 
@@ -31,9 +31,9 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		double previousBalance = getBalance(accountNumber);
 		double newBalance = previousBalance + amount;
 		Account account = new Account(accountNumber, newBalance);
-		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(eventId, account);
+		AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(eventId, account);
 		eventBus.post(updateRequest);
-		eventBus.post(new AccountCreditedEvent(eventId, accountNumber, amount, newBalance));
+		eventBus.post(new AccountCreditedDomainEvent(eventId, accountNumber, amount, newBalance));
 
 		addToHistory(account, TransactionType.CREDIT, amount);
 	}
@@ -57,9 +57,9 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 
 		if(newBalance >= 0d) {
 			Account account = new Account(accountNumber, newBalance);
-			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitEventId, account);
+			AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(debitEventId, account);
 			eventBus.post(updateRequest);
-			eventBus.post(new AccountDebitedEvent(debitEventId, accountNumber, amount, newBalance));
+			eventBus.post(new AccountDebitedDomainEvent(debitEventId, accountNumber, amount, newBalance));
 
 			addToHistory(account, TransactionType.DEBIT, amount);
 		} else {

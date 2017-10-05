@@ -3,9 +3,9 @@ package com.paas.microservices;
 import java.util.UUID;
 
 public interface AccountRepository {
-	void create(AccountCreateRequestEvent event);
+	void create(AccountCreateRequestDataEvent event);
 
-	Account save(AccountUpdateRequestEvent event);
+	Account save(AccountBalanceSetRequestDataEvent event);
 
 	Account load(UUID accountNumber);
 

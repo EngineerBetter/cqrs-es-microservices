@@ -2,12 +2,12 @@ package com.paas.microservices;
 
 import java.util.UUID;
 
-public class AccountCreatedEvent implements Event {
+public class AccountCreatedDataEvent implements Event {
 	public final UUID parentEventId;
 	public final UUID createdId;
 
 
-	public AccountCreatedEvent(UUID parentEventId, UUID createdId) {
+	public AccountCreatedDataEvent(UUID parentEventId, UUID createdId) {
 		this.parentEventId = parentEventId;
 		this.createdId = createdId;
 	}
@@ -31,7 +31,7 @@ public class AccountCreatedEvent implements Event {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountCreatedEvent other = (AccountCreatedEvent) obj;
+		AccountCreatedDataEvent other = (AccountCreatedDataEvent) obj;
 		if (createdId == null) {
 			if (other.createdId != null)
 				return false;

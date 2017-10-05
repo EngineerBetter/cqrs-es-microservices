@@ -2,11 +2,11 @@ package com.paas.microservices;
 
 import java.util.UUID;
 
-public class AccountCreateRequestEvent implements Event {
+public class AccountCreateRequestDataEvent implements Event {
 	public final UUID eventId;
 	public final double startingBalance;
 
-	public AccountCreateRequestEvent(UUID eventId, double startingBalance) {
+	public AccountCreateRequestDataEvent(UUID eventId, double startingBalance) {
 		this.eventId = eventId;
 		this.startingBalance = startingBalance;
 	}
@@ -29,7 +29,7 @@ public class AccountCreateRequestEvent implements Event {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountCreateRequestEvent other = (AccountCreateRequestEvent) obj;
+		AccountCreateRequestDataEvent other = (AccountCreateRequestDataEvent) obj;
 		if (Double.doubleToLongBits(startingBalance) != Double.doubleToLongBits(other.startingBalance))
 			return false;
 		if (eventId == null) {

@@ -21,7 +21,7 @@ public class InMemoryAccountRepositoryTest {
 	@Test
 	public void accountsAreCreatable() {
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(0);
-		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(UUID.randomUUID(), 0d);
+		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(UUID.randomUUID(), 0d);
 		repo.create(requestEvent);
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(1);
 	}
@@ -30,7 +30,7 @@ public class InMemoryAccountRepositoryTest {
 	public void writtenAccountsAreReadable() {
 		UUID accountNumber = UUID.randomUUID();
 		Account account = new Account(accountNumber, 123.12d);
-		Account returned = repo.save(new AccountUpdateRequestEvent(UUID.randomUUID(), account));
+		Account returned = repo.save(new AccountBalanceSetRequestDataEvent(UUID.randomUUID(), account));
 		assertThat(returned).isEqualTo(account);
 
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(1);
@@ -48,15 +48,15 @@ public class InMemoryAccountRepositoryTest {
 		assertThat(leftEventBus.getEvents().size()).isEqualTo(0);
 
 		UUID createdAccountNumber = UUID.randomUUID();
-		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(createdAccountNumber, 0d);
+		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(createdAccountNumber, 0d);
 		leftEventBus.post(requestEvent);
 		assertThat(leftEventBus.getEvents().size()).isEqualTo(2);
 
 		Set<Event> leftEvents = leftEventBus.getEvents();
 		assertThat(leftEvents).contains(requestEvent);
 		assertThat(leftEvents.stream()
-				.filter(e -> e instanceof AccountCreatedEvent)
-				.map(e -> (AccountCreatedEvent) e)
+				.filter(e -> e instanceof AccountCreatedDataEvent)
+				.map(e -> (AccountCreatedDataEvent) e)
 				.filter((e) -> e.parentEventId.equals(requestEvent.eventId))
 				.filter((e) -> createdAccountNumber.equals(e.createdId))
 				.collect(Collectors.toList()).size()).isEqualTo(1);
@@ -66,8 +66,8 @@ public class InMemoryAccountRepositoryTest {
 		Set<Event> leftEventsAfterImport = leftEventBus.getEvents();
 		assertThat(leftEventsAfterImport).contains(requestEvent);
 		assertThat(leftEventsAfterImport.stream()
-				.filter(e -> e instanceof AccountCreatedEvent)
-				.map(e -> (AccountCreatedEvent) e)
+				.filter(e -> e instanceof AccountCreatedDataEvent)
+				.map(e -> (AccountCreatedDataEvent) e)
 				.filter((e) -> e.parentEventId.equals(requestEvent.eventId))
 				.filter((e) -> createdAccountNumber.equals(e.createdId))
 				.collect(Collectors.toList()).size()).isEqualTo(1);
@@ -108,7 +108,7 @@ public class InMemoryAccountRepositoryTest {
 		left = new InMemoryAccountRepository(leftEventBus);
 		right = new InMemoryAccountRepository(rightEventBus);
 
-		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(UUID.randomUUID(), 0d);
+		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(UUID.randomUUID(), 0d);
 
 		leftEventBus.post(requestEvent);
 		rightEventBus.post(requestEvent);
@@ -123,15 +123,15 @@ public class InMemoryAccountRepositoryTest {
 
 	private void assertCreateRequestResultsInTwoEvents(InMemoryAccountRepository repo, StoringEventBus eventBus) {
 		UUID createdAccountNumber = UUID.randomUUID();
-		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(createdAccountNumber, 0d);
+		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(createdAccountNumber, 0d);
 		eventBus.post(requestEvent);
 		assertThat(eventBus.getEvents().size()).isEqualTo(2);
 
 		Set<Event> leftEvents = eventBus.getEvents();
 		assertThat(leftEvents).contains(requestEvent);
 		assertThat(leftEvents.stream()
-				.filter(e -> e instanceof AccountCreatedEvent)
-				.map(e -> (AccountCreatedEvent) e)
+				.filter(e -> e instanceof AccountCreatedDataEvent)
+				.map(e -> (AccountCreatedDataEvent) e)
 				.filter((e) -> e.parentEventId.equals(requestEvent.eventId))
 				.filter((e) -> createdAccountNumber.equals(e.createdId))
 				.collect(Collectors.toList()).size()).isEqualTo(1);

@@ -2,13 +2,13 @@ package com.paas.microservices;
 
 import java.util.UUID;
 
-public class AccountCreditedEvent implements Event {
+public class AccountDebitedDomainEvent implements Event {
 	public final UUID eventId;
 	public final UUID accountNumber;
 	public final double amount;
 	public final double resultingBalance;
 
-	public AccountCreditedEvent(UUID eventId, UUID accountNumber, double amount, double resultingBalance) {
+	public AccountDebitedDomainEvent(UUID eventId, UUID accountNumber, double amount, double resultingBalance) {
 		this.eventId = eventId;
 		this.accountNumber = accountNumber;
 		this.amount = amount;
@@ -37,7 +37,7 @@ public class AccountCreditedEvent implements Event {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountCreditedEvent other = (AccountCreditedEvent) obj;
+		AccountDebitedDomainEvent other = (AccountDebitedDomainEvent) obj;
 		if (accountNumber == null) {
 			if (other.accountNumber != null)
 				return false;

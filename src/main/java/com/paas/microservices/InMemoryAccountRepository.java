@@ -23,18 +23,18 @@ public class InMemoryAccountRepository implements AccountRepository, ResetHandle
 
 	@Override
 	@Subscribe
-	public void create(AccountCreateRequestEvent requestEvent) {
+	public void create(AccountCreateRequestDataEvent requestEvent) {
 		UUID newId = requestEvent.eventId;
 		Account newAccount = new Account(requestEvent.eventId, requestEvent.startingBalance);
 		accounts.put(newId, newAccount);
 
-		AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
+		AccountCreatedDataEvent createdEvent = new AccountCreatedDataEvent(requestEvent.eventId, newId);
 		eventBus.post(createdEvent);
 	}
 
 	@Override
 	@Subscribe
-	public Account save(AccountUpdateRequestEvent requestEvent) {
+	public Account save(AccountBalanceSetRequestDataEvent requestEvent) {
 		accounts.put(requestEvent.account.accountNumber, requestEvent.account);
 		return requestEvent.account;
 	}
