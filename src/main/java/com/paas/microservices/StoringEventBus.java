@@ -1,24 +1,34 @@
 package com.paas.microservices;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
 
-public class StoringEventBus {
+public class StoringEventBus implements SubscriberExceptionHandler {
 	private final EventBus eventBus;
 	private final Set<Event> seenEvents;
+	private final Set<Throwable> exceptionsThrown;
 
 	public StoringEventBus() {
-		this.eventBus = new EventBus();
+		this.eventBus = new EventBus(this);
 		this.seenEvents = new LinkedHashSet<>();
+		this.exceptionsThrown = new HashSet<>();
 	}
 
-	public StoringEventBus(SubscriberExceptionHandler exceptionHandler) {
-		this.eventBus = new EventBus(exceptionHandler);
-		this.seenEvents = new LinkedHashSet<>();
+	@Override
+	public void handleException(Throwable exception, SubscriberExceptionContext context) {
+		exceptionsThrown.add(exception);
+	}
+
+	public boolean exceptionThrownMatching(Throwable exception) {
+		long count = exceptionsThrown.stream().filter((s) -> s.getClass().equals(exception.getClass()))
+				.filter((e) -> e.getMessage().equals(exception.getMessage())).count();
+		return count > 0;
 	}
 
 	public void post(Event event) {

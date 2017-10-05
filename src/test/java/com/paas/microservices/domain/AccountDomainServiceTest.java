@@ -18,13 +18,11 @@ public class AccountDomainServiceTest {
 	private AccountRepository repo;
 	private AccountDomainService accountService;
 	private StoringEventBus eventBus;
-	private ExceptionEventHandler exceptionHandler;
 	private Account account;
 
 	@Before
 	public void setup() {
-		exceptionHandler = new ExceptionEventHandler();
-		eventBus = new StoringEventBus(exceptionHandler);
+		eventBus = new StoringEventBus();
 		repo = new InMemoryAccountRepository(eventBus);
 		accountService = new RepositoryAccountDomainService(repo, eventBus);
 		createAccount();
@@ -107,7 +105,8 @@ public class AccountDomainServiceTest {
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(0d);
 		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 30d));
-		exceptionHandler.contains(new RuntimeException("You are trying to debit more than your account balance currently has"));
+		RuntimeException expectedException = new RuntimeException("You are trying to debit more than your account balance currently has");
+		assertThat(eventBus.exceptionThrownMatching(expectedException)).isTrue();
 	}
 
 	@Test
