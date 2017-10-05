@@ -20,50 +20,35 @@ public class InMemoryAccountRepository implements AccountRepository {
 	@Override
 	@Subscribe
 	public void create(AccountCreateRequestEvent requestEvent) {
-		Map<UUID, Account> snapshot = getAccountsSnapshot();
-
-		UUID newId = apply(requestEvent, snapshot);
+		UUID newId = requestEvent.eventId;
+		Account newAccount = new Account(requestEvent.eventId, requestEvent.startingBalance);
+		accounts.put(newId, newAccount);
 
 		AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
 		eventBus.post(createdEvent);
 	}
 
-	private UUID apply(AccountCreateRequestEvent requestEvent, Map<UUID, Account> accounts) {
-		UUID newId = requestEvent.eventId;
-		Account newAccount = new Account(requestEvent.eventId, requestEvent.startingBalance);
-		accounts.put(newId, newAccount);
-		return newId;
-	}
-
 	@Override
 	@Subscribe
 	public Account save(AccountUpdateRequestEvent requestEvent) {
-		apply(requestEvent, getAccountsSnapshot());
-		return requestEvent.account;
-	}
-
-	private void apply(AccountUpdateRequestEvent requestEvent, Map<UUID, Account> accounts) {
 		accounts.put(requestEvent.account.accountNumber, requestEvent.account);
+		return requestEvent.account;
 	}
 
 	@Override
 	public Account load(UUID accountNumber) {
-		Map<UUID, Account> snapshot = getAccountsSnapshot();
+		Map<UUID, Account> snapshot = accounts;
 
 		if(! snapshot.containsKey(accountNumber)) {
 			throw new RuntimeException("AccountNumber ["+accountNumber+"] did not exist");
 		}
 
-		return getAccountsSnapshot().get(accountNumber);
+		return accounts.get(accountNumber);
 	}
 
 	@Override
 	public Integer getTotalNumberOfAccounts() {
-		return getAccountsSnapshot().size();
-	}
-
-	protected Map<UUID, Account> getAccountsSnapshot() {
-		return accounts;
+		return accounts.size();
 	}
 
 

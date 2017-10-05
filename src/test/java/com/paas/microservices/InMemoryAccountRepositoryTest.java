@@ -20,10 +20,10 @@ public class InMemoryAccountRepositoryTest {
 
 	@Test
 	public void accountsAreCreatable() {
-		assertThat(repo.getAccountsSnapshot().size()).isEqualTo(0);
+		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(0);
 		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(UUID.randomUUID(), 0d);
 		repo.create(requestEvent);
-		assertThat(repo.getAccountsSnapshot().size()).isEqualTo(1);
+		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(1);
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class InMemoryAccountRepositoryTest {
 		Account returned = repo.save(new AccountUpdateRequestEvent(UUID.randomUUID(), account));
 		assertThat(returned).isEqualTo(account);
 
-		assertThat(repo.getAccountsSnapshot().size()).isEqualTo(1);
+		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(1);
 
 		Account actual = repo.load(accountNumber);
 		assertThat(actual).isEqualTo(account);
