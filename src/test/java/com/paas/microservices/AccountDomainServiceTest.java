@@ -9,21 +9,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.google.common.eventbus.EventBus;
 import com.paas.microservices.TransactionRow.TransactionType;
 
 public class AccountDomainServiceTest {
 	private AccountRepository repo;
 	private AccountDomainService accountService;
 	private EventStore eventStore;
-	private EventBus eventBus;
+	private StoringEventBus eventBus;
 	private Account account;
 
 	@Before
 	public void setup() {
 		eventStore = new EventStore();
-		eventBus = new EventBus();
-		repo = new InMemoryAccountRepository(eventStore, eventBus);
+		eventBus = new StoringEventBus();
+		repo = new InMemoryAccountRepository(eventBus);
 		accountService = new RepositoryAccountDomainService(repo, eventStore, eventBus);
 		account = createAccount();
 	}

@@ -8,13 +8,12 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 public class EventBusTest {
 	@Test
 	public void howDoesItWork() {
-		NonRepeatingEventBus bus = new NonRepeatingEventBus(new EventBus());
+		StoringEventBus bus = new StoringEventBus();
 		bus.register(new TestHandler(bus));
 		AcknowledgementHandler ackHandler = new AcknowledgementHandler();
 		bus.register(ackHandler);
@@ -28,36 +27,10 @@ public class EventBusTest {
 		assertThat(ackHandler.handledEvents).isEqualTo(2);
 	}
 
-	public static class NonRepeatingEventBus {
-		private final EventBus eventBus;
-		private final Set<Object> seenEvents;
-
-		public NonRepeatingEventBus(EventBus eventBus) {
-			this.eventBus = eventBus;
-			this.seenEvents = new HashSet<>();
-		}
-
-		public void post(Object event) {
-			if(! seenEvents.contains(event)) {
-				eventBus.post(event);
-				seenEvents.add(event);
-			}
-		}
-
-		public void register(Object object) {
-			eventBus.register(object);
-		}
-
-		public void unregister(Object object) {
-			eventBus.unregister(object);
-		}
-	}
-
-
 	public static class TestHandler {
-		private final NonRepeatingEventBus bus;
+		private final StoringEventBus bus;
 
-		public TestHandler(NonRepeatingEventBus bus) {
+		public TestHandler(StoringEventBus bus) {
 			this.bus = bus;
 		}
 
@@ -68,7 +41,7 @@ public class EventBusTest {
 		}
 	}
 
-	public static class TestEvent {
+	public static class TestEvent implements Event {
 		public final UUID eventId;
 		public final String foo;
 
@@ -130,7 +103,7 @@ public class EventBusTest {
 		}
 	}
 
-	public static class AcknowledgedEvent {
+	public static class AcknowledgedEvent implements Event {
 		public final String acknowledgedString;
 
 		public AcknowledgedEvent(String acknowledgedString) {

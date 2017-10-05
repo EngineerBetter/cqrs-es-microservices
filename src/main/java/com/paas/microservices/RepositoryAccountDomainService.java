@@ -6,16 +6,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.eventbus.EventBus;
 import com.paas.microservices.TransactionRow.TransactionType;
 
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
 	Map<UUID, TransactionRow> transactions;
 	private final EventStore eventStore;
-	private final EventBus eventBus;
+	private final StoringEventBus eventBus;
 
-	public RepositoryAccountDomainService(AccountRepository repo, EventStore eventStore, EventBus eventBus) {
+	public RepositoryAccountDomainService(AccountRepository repo, EventStore eventStore, StoringEventBus eventBus) {
 		this.repo = repo;
 		this.eventStore = eventStore;
 		this.eventBus = eventBus;
@@ -36,7 +35,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		Account account = new Account(accountNumber, newBalance);
 		AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(eventId, account);
 		eventBus.post(updateRequest);
-		eventStore.add(new AccountCreditedEvent(eventId, accountNumber, amount, newBalance));
+		eventBus.post(new AccountCreditedEvent(eventId, accountNumber, amount, newBalance));
 	}
 
 	@Override
@@ -54,7 +53,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 			Account account = new Account(accountNumber, newBalance);
 			AccountUpdateRequestEvent updateRequest = new AccountUpdateRequestEvent(debitEventId, account);
 			eventBus.post(updateRequest);
-			eventStore.add(new AccountDebitedEvent(debitEventId, accountNumber, amountToBeDebited, newBalance));
+			eventBus.post(new AccountDebitedEvent(debitEventId, accountNumber, amountToBeDebited, newBalance));
 		} else {
 			//TODO: create a failed debit event
 			throw new RuntimeException("You are trying to debit more than your account balance currently has");

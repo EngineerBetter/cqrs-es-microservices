@@ -5,17 +5,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 public class InMemoryAccountRepository implements AccountRepository {
-	private final EventStore eventStore;
-	private final EventBus eventBus;
+	private final StoringEventBus eventBus;
+	private final Map<UUID, Account> accounts;
 
-	public InMemoryAccountRepository(EventStore eventStore, EventBus eventBus) {
-		this.eventStore = eventStore;
+	public InMemoryAccountRepository(StoringEventBus eventBus) {
 		this.eventBus = eventBus;
 		eventBus.register(this);
+		this.accounts = new HashMap<>();
 	}
 
 	@Override
@@ -23,26 +22,10 @@ public class InMemoryAccountRepository implements AccountRepository {
 	public void create(AccountCreateRequestEvent requestEvent) {
 		Map<UUID, Account> snapshot = getAccountsSnapshot();
 
-		if(eventStore.isNewEvent(requestEvent)) {
-			eventStore.add(requestEvent);
+		UUID newId = apply(requestEvent, snapshot);
 
-			UUID newId = apply(requestEvent, snapshot);
-
-			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
-			eventStore.add(createdEvent);
-			eventBus.post(createdEvent);
-		} else {
-			for(Event e: eventStore.getEvents()) {
-				if(e instanceof AccountCreatedEvent) {
-					AccountCreatedEvent ace = (AccountCreatedEvent) e;
-					if(ace.parentEventId.equals(requestEvent.eventId)) {
-						// Do nothing? Will be handled by EventBus?
-					}
-				}
-			}
-
-			throw new RuntimeException("Encountered duplicate create request, but could not find resulting created event");
-		}
+		AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
+		eventBus.post(createdEvent);
 	}
 
 	private UUID apply(AccountCreateRequestEvent requestEvent, Map<UUID, Account> accounts) {
@@ -55,13 +38,8 @@ public class InMemoryAccountRepository implements AccountRepository {
 	@Override
 	@Subscribe
 	public Account save(AccountUpdateRequestEvent requestEvent) {
-		if(eventStore.isNewEvent(requestEvent)) {
-			eventStore.add(requestEvent);
-			apply(requestEvent, getAccountsSnapshot());
-			return requestEvent.account;
-		} else {
-			return getAccountsSnapshot().get(requestEvent.account.accountNumber);
-		}
+		apply(requestEvent, getAccountsSnapshot());
+		return requestEvent.account;
 	}
 
 	private void apply(AccountUpdateRequestEvent requestEvent, Map<UUID, Account> accounts) {
@@ -85,26 +63,15 @@ public class InMemoryAccountRepository implements AccountRepository {
 	}
 
 	protected Map<UUID, Account> getAccountsSnapshot() {
-		Map<UUID, Account> accounts = new HashMap<>();
-
-		for(Event e : eventStore.getEvents()) {
-			if(e instanceof AccountCreateRequestEvent) {
-				apply((AccountCreateRequestEvent) e, accounts);
-			}
-
-			if(e instanceof AccountUpdateRequestEvent) {
-				apply((AccountUpdateRequestEvent) e, accounts);
-			}
-		}
-
 		return accounts;
 	}
 
+
 	public void importEvents(Set<Event> other) {
-		eventStore.importEvents(other);
+		eventBus.importEvents(other);
 	}
 
 	public Set<Event> getEvents() {
-		return eventStore.getEvents();
+		return eventBus.getEvents();
 	}
 }

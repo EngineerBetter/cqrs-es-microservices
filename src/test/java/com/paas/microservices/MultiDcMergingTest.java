@@ -10,10 +10,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.common.eventbus.EventBus;
-
 public class MultiDcMergingTest {
-	private EventBus leftEventBus, rightEventBus;
+	private StoringEventBus leftEventBus, rightEventBus;
 	private EventStore leftEventStore, rightEventStore;
 	private RepositoryAccountDomainService leftService, rightService;
 	private InMemoryAccountRepository leftRepo, rightRepo;
@@ -22,10 +20,10 @@ public class MultiDcMergingTest {
 	public void setup() {
 		leftEventStore = new EventStore();
 		rightEventStore = new EventStore();
-		leftEventBus = new EventBus();
-		rightEventBus = new EventBus();
-		leftRepo = new InMemoryAccountRepository(leftEventStore, leftEventBus);
-		rightRepo = new InMemoryAccountRepository(rightEventStore, rightEventBus);
+		leftEventBus = new StoringEventBus();
+		rightEventBus = new StoringEventBus();
+		leftRepo = new InMemoryAccountRepository(leftEventBus);
+		rightRepo = new InMemoryAccountRepository(rightEventBus);
 		leftService = new RepositoryAccountDomainService(leftRepo, leftEventStore, leftEventBus);
 		rightService = new RepositoryAccountDomainService(rightRepo, rightEventStore, rightEventBus);
 	}
