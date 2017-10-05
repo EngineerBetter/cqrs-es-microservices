@@ -2,19 +2,27 @@ package com.paas.microservices.domain;
 
 import java.util.UUID;
 
+import com.paas.microservices.CausableEvent;
 import com.paas.microservices.Event;
 
-public class AccountTransactedDomainEvent implements Event {
+public class AccountTransactedDomainEvent implements CausableEvent {
 	public final UUID eventId;
 	public final UUID accountNumber;
 	public final double amount;
 	public final double resultingBalance;
+	public final Event cause;
 
-	public AccountTransactedDomainEvent(UUID eventId, UUID accountNumber, double amount, double resultingBalance) {
+	public AccountTransactedDomainEvent(UUID eventId, UUID accountNumber, double amount, double resultingBalance, Event cause) {
 		this.eventId = eventId;
 		this.accountNumber = accountNumber;
 		this.amount = amount;
 		this.resultingBalance = resultingBalance;
+		this.cause = cause;
+	}
+
+	@Override
+	public Event getCause() {
+		return cause;
 	}
 
 	@Override
@@ -25,6 +33,7 @@ public class AccountTransactedDomainEvent implements Event {
 		long temp;
 		temp = Double.doubleToLongBits(amount);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((cause == null) ? 0 : cause.hashCode());
 		result = prime * result + ((eventId == null) ? 0 : eventId.hashCode());
 		temp = Double.doubleToLongBits(resultingBalance);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -47,6 +56,11 @@ public class AccountTransactedDomainEvent implements Event {
 			return false;
 		if (Double.doubleToLongBits(amount) != Double.doubleToLongBits(other.amount))
 			return false;
+		if (cause == null) {
+			if (other.cause != null)
+				return false;
+		} else if (!cause.equals(other.cause))
+			return false;
 		if (eventId == null) {
 			if (other.eventId != null)
 				return false;
@@ -59,7 +73,7 @@ public class AccountTransactedDomainEvent implements Event {
 
 	@Override
 	public String toString() {
-		return "AccountCreditedEvent [eventId=" + eventId + ", accountNumber=" + accountNumber + ", amount=" + amount
-				+ ", resultingBalance=" + resultingBalance + "]";
+		return "AccountTransactedDomainEvent [eventId=" + eventId + ", accountNumber=" + accountNumber + ", amount="
+				+ amount + ", resultingBalance=" + resultingBalance + ", cause=" + cause + "]";
 	}
 }

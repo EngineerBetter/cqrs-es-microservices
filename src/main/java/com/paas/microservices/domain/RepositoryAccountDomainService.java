@@ -30,7 +30,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		double startingBalance = 0d;
 		eventBus.post(new AccountCreateRequestDataEvent(event.eventId, startingBalance, event));
 		Account account = new Account(event.eventId, startingBalance);
-		eventBus.post(new AccountCreatedDomainEvent(event.eventId, account));
+		eventBus.post(new AccountCreatedDomainEvent(event.eventId, account, event));
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		Account account = new Account(event.accountNumber, newBalance);
 		AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(event.eventId, account, event);
 		eventBus.post(updateRequest);
-		eventBus.post(new AccountTransactedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance));
+		eventBus.post(new AccountTransactedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance, event));
 
 		if(event.type == TransactionType.CREDIT) {
 			addToHistory(account, TransactionType.CREDIT, event.amount);
