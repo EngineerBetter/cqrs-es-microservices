@@ -14,16 +14,14 @@ import com.paas.microservices.TransactionRow.TransactionType;
 public class AccountDomainServiceTest {
 	private AccountRepository repo;
 	private AccountDomainService accountService;
-	private EventStore eventStore;
 	private StoringEventBus eventBus;
 	private Account account;
 
 	@Before
 	public void setup() {
-		eventStore = new EventStore();
 		eventBus = new StoringEventBus();
 		repo = new InMemoryAccountRepository(eventBus);
-		accountService = new RepositoryAccountDomainService(repo, eventStore, eventBus);
+		accountService = new RepositoryAccountDomainService(repo, eventBus);
 		account = createAccount();
 	}
 

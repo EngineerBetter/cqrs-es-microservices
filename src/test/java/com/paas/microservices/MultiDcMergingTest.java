@@ -12,20 +12,17 @@ import org.junit.Test;
 
 public class MultiDcMergingTest {
 	private StoringEventBus leftEventBus, rightEventBus;
-	private EventStore leftEventStore, rightEventStore;
 	private RepositoryAccountDomainService leftService, rightService;
 	private InMemoryAccountRepository leftRepo, rightRepo;
 
 	@Before
 	public void setup() {
-		leftEventStore = new EventStore();
-		rightEventStore = new EventStore();
 		leftEventBus = new StoringEventBus();
 		rightEventBus = new StoringEventBus();
 		leftRepo = new InMemoryAccountRepository(leftEventBus);
 		rightRepo = new InMemoryAccountRepository(rightEventBus);
-		leftService = new RepositoryAccountDomainService(leftRepo, leftEventStore, leftEventBus);
-		rightService = new RepositoryAccountDomainService(rightRepo, rightEventStore, rightEventBus);
+		leftService = new RepositoryAccountDomainService(leftRepo, leftEventBus);
+		rightService = new RepositoryAccountDomainService(rightRepo, rightEventBus);
 	}
 
 	@Test

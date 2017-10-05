@@ -1,7 +1,7 @@
 package com.paas.microservices;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.eventbus.EventBus;
@@ -12,7 +12,7 @@ public class StoringEventBus {
 
 	public StoringEventBus() {
 		this.eventBus = new EventBus();
-		this.seenEvents = new HashSet<>();
+		this.seenEvents = new LinkedHashSet<>();
 	}
 
 	public void post(Event event) {

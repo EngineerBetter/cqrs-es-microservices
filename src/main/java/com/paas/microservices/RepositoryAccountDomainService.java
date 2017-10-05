@@ -11,12 +11,10 @@ import com.paas.microservices.TransactionRow.TransactionType;
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
 	Map<UUID, TransactionRow> transactions;
-	private final EventStore eventStore;
 	private final StoringEventBus eventBus;
 
-	public RepositoryAccountDomainService(AccountRepository repo, EventStore eventStore, StoringEventBus eventBus) {
+	public RepositoryAccountDomainService(AccountRepository repo, StoringEventBus eventBus) {
 		this.repo = repo;
-		this.eventStore = eventStore;
 		this.eventBus = eventBus;
 		eventBus.register(this);
 	}
@@ -64,7 +62,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	public TransactionHistory getTransactionHistory(UUID accountNumber) {
 		List<TransactionRow> rows = new ArrayList<>();
 
-		for(Event e : eventStore.getEvents()) {
+		for(Event e : eventBus.getEvents()) {
 			if(e instanceof AccountCreditedEvent && accountNumber.equals(((AccountCreditedEvent) e).accountNumber)) {
 				AccountCreditedEvent cae = (AccountCreditedEvent) e;
 				rows.add(new TransactionRow(TransactionType.CREDIT,cae.amount, cae.resultingBalance));
@@ -80,11 +78,11 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	}
 
 	public void importEvents(Set<Event> other) {
-		eventStore.importEvents(other);
+		eventBus.importEvents(other);
 	}
 
 	public Set<Event> getEvents() {
-		return eventStore.getEvents();
+		return eventBus.getEvents();
 	}
 
 }
