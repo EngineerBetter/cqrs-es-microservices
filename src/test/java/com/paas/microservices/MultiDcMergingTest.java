@@ -11,8 +11,8 @@ import org.junit.Test;
 
 import com.paas.microservices.data.InMemoryAccountRepository;
 import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
-import com.paas.microservices.domain.AccountCreditRequestDomainEvent;
-import com.paas.microservices.domain.AccountDebitRequestDomainEvent;
+import com.paas.microservices.domain.AccountTransactionRequestDomainEvent;
+import com.paas.microservices.domain.TransactionType;
 import com.paas.microservices.domain.RepositoryAccountDomainService;
 
 public class MultiDcMergingTest {
@@ -40,8 +40,8 @@ public class MultiDcMergingTest {
 		rightEventBus.post(new AccountCreateRequestDomainEvent(UUID.randomUUID()));
 		Account rightAccount = thingy.getAccount();
 
-		leftEventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), leftAccount.accountNumber, 100d));
-		rightEventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), rightAccount.accountNumber, 60d));
+		leftEventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), leftAccount.accountNumber, 100d, TransactionType.CREDIT));
+		rightEventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), rightAccount.accountNumber, 60d, TransactionType.CREDIT));
 
 		Set<Event> merged = new LinkedHashSet<>();
 		merged.addAll(leftEventBus.getEvents());
@@ -61,15 +61,15 @@ public class MultiDcMergingTest {
 		UUID accountNumber = UUID.randomUUID();
 		AccountCreateRequestDomainEvent createReqEvent = new AccountCreateRequestDomainEvent(accountNumber);
 		leftEventBus.post(createReqEvent);
-		leftEventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), accountNumber, 100d));
+		leftEventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), accountNumber, 100d, TransactionType.CREDIT));
 		merge();
 		assertThat(leftService.getBalance(accountNumber)).isEqualTo(100d);
 		assertThat(rightService.getBalance(accountNumber)).isEqualTo(100d);
 
-		leftEventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), accountNumber, 70d));
+		leftEventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), accountNumber, 70d, TransactionType.DEBIT));
 		assertThat(leftService.getBalance(accountNumber)).isEqualTo(30d);
 
-		rightEventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), accountNumber, 60d));
+		rightEventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), accountNumber, 60d, TransactionType.DEBIT));
 		assertThat(rightService.getBalance(accountNumber)).isEqualTo(40d);
 
 		merge();

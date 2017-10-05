@@ -6,9 +6,7 @@ public interface AccountDomainService {
 
 	void createAccount(AccountCreateRequestDomainEvent event);
 
-	void creditAccount(AccountCreditRequestDomainEvent event);
-
-	void debitAccount(AccountDebitRequestDomainEvent event);
+	void creditAccount(AccountTransactionRequestDomainEvent event);
 
 	double getBalance(UUID accountNumber);
 

@@ -4,13 +4,13 @@ import java.util.UUID;
 
 import com.paas.microservices.Event;
 
-public class AccountCreditedDomainEvent implements Event {
+public class AccountTransactedDomainEvent implements Event {
 	public final UUID eventId;
 	public final UUID accountNumber;
 	public final double amount;
 	public final double resultingBalance;
 
-	public AccountCreditedDomainEvent(UUID eventId, UUID accountNumber, double amount, double resultingBalance) {
+	public AccountTransactedDomainEvent(UUID eventId, UUID accountNumber, double amount, double resultingBalance) {
 		this.eventId = eventId;
 		this.accountNumber = accountNumber;
 		this.amount = amount;
@@ -39,7 +39,7 @@ public class AccountCreditedDomainEvent implements Event {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountCreditedDomainEvent other = (AccountCreditedDomainEvent) obj;
+		AccountTransactedDomainEvent other = (AccountTransactedDomainEvent) obj;
 		if (accountNumber == null) {
 			if (other.accountNumber != null)
 				return false;

@@ -12,7 +12,6 @@ import com.paas.microservices.AccountGetter;
 import com.paas.microservices.StoringEventBus;
 import com.paas.microservices.data.AccountRepository;
 import com.paas.microservices.data.InMemoryAccountRepository;
-import com.paas.microservices.domain.TransactionRow.TransactionType;
 
 public class AccountDomainServiceTest {
 	private AccountRepository repo;
@@ -55,11 +54,11 @@ public class AccountDomainServiceTest {
 	public void accountsAreCreditable() {
 		assertThat(account.balance).isEqualTo(0);
 
-		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d, TransactionType.CREDIT));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(50d);
 
-		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d, TransactionType.CREDIT));
 		balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(100d);
 	}
@@ -69,8 +68,8 @@ public class AccountDomainServiceTest {
 		assertThat(account.balance).isEqualTo(0);
 
 		UUID creditTxId = UUID.randomUUID();
-		eventBus.post(new AccountCreditRequestDomainEvent(creditTxId, account.accountNumber, 50d));
-		eventBus.post(new AccountCreditRequestDomainEvent(creditTxId, account.accountNumber, 50d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(creditTxId, account.accountNumber, 50d, TransactionType.CREDIT));
+		eventBus.post(new AccountTransactionRequestDomainEvent(creditTxId, account.accountNumber, 50d, TransactionType.CREDIT));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(50d);
 	}
@@ -78,10 +77,10 @@ public class AccountDomainServiceTest {
 	@Test
 	public void accountsAreDebitable() {
 		assertThat(account.balance).isEqualTo(0);
-		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 200d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 200d, TransactionType.CREDIT));
 
-		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 100d));
-		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 100d, TransactionType.DEBIT));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d, TransactionType.DEBIT));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(50);
 	}
@@ -91,10 +90,10 @@ public class AccountDomainServiceTest {
 		assertThat(account.balance).isEqualTo(0);
 
 		UUID creditTxID = UUID.randomUUID();
-		eventBus.post(new AccountCreditRequestDomainEvent(creditTxID, account.accountNumber, 100d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(creditTxID, account.accountNumber, 100d, TransactionType.CREDIT));
 		UUID debitTxID = UUID.randomUUID();
-		eventBus.post(new AccountDebitRequestDomainEvent(debitTxID, account.accountNumber, 30d));
-		eventBus.post(new AccountDebitRequestDomainEvent(debitTxID, account.accountNumber, 30d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(debitTxID, account.accountNumber, 30d, TransactionType.DEBIT));
+		eventBus.post(new AccountTransactionRequestDomainEvent(debitTxID, account.accountNumber, 30d, TransactionType.DEBIT));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(70d);
 	}
@@ -104,7 +103,7 @@ public class AccountDomainServiceTest {
 	public void accountsCannotBeDebitedBelowZero() {
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(0d);
-		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 30d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 30d, TransactionType.DEBIT));
 		RuntimeException expectedException = new RuntimeException("You are trying to debit more than your account balance currently has");
 		assertThat(eventBus.exceptionThrownMatching(expectedException)).isTrue();
 	}
@@ -113,9 +112,9 @@ public class AccountDomainServiceTest {
 	public void transactionHistoriesAreGettable() {
 		assertThat(account.balance).isEqualTo(0);
 
-		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d));
-		eventBus.post(new AccountCreditRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 125d));
-		eventBus.post(new AccountDebitRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 30d));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 50d, TransactionType.CREDIT));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 125d, TransactionType.CREDIT));
+		eventBus.post(new AccountTransactionRequestDomainEvent(UUID.randomUUID(), account.accountNumber, 30d, TransactionType.DEBIT));
 		double balance = accountService.getBalance(account.accountNumber);
 		assertThat(balance).isEqualTo(145d);
 

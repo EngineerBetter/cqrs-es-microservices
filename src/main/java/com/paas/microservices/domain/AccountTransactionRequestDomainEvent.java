@@ -4,16 +4,18 @@ import java.util.UUID;
 
 import com.paas.microservices.Event;
 
-public class AccountCreditRequestDomainEvent implements Event {
+public class AccountTransactionRequestDomainEvent implements Event {
 	public final UUID eventId;
 	public final UUID accountNumber;
 	public final double amount;
+	public final TransactionType type;
 
-	public AccountCreditRequestDomainEvent(UUID eventId, UUID accountNumber, double amount) {
+	public AccountTransactionRequestDomainEvent(UUID eventId, UUID accountNumber, double amount,TransactionType type) {
 		super();
 		this.eventId = eventId;
 		this.accountNumber = accountNumber;
 		this.amount = amount;
+		this.type = type;
 	}
 
 	@Override
@@ -25,6 +27,7 @@ public class AccountCreditRequestDomainEvent implements Event {
 		temp = Double.doubleToLongBits(amount);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((eventId == null) ? 0 : eventId.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -36,7 +39,7 @@ public class AccountCreditRequestDomainEvent implements Event {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountCreditRequestDomainEvent other = (AccountCreditRequestDomainEvent) obj;
+		AccountTransactionRequestDomainEvent other = (AccountTransactionRequestDomainEvent) obj;
 		if (accountNumber == null) {
 			if (other.accountNumber != null)
 				return false;
@@ -49,12 +52,14 @@ public class AccountCreditRequestDomainEvent implements Event {
 				return false;
 		} else if (!eventId.equals(other.eventId))
 			return false;
+		if (type != other.type)
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "AccountCreditRequestDomainEvent [eventId=" + eventId + ", accountNumber=" + accountNumber + ", amount="
-				+ amount + "]";
+		return "AccountTransactionRequestDomainEvent [eventId=" + eventId + ", accountNumber=" + accountNumber
+				+ ", amount=" + amount + ", type=" + type + "]";
 	}
 }

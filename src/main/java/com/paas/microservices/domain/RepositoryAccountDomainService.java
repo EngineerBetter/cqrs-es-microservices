@@ -11,7 +11,6 @@ import com.paas.microservices.StoringEventBus;
 import com.paas.microservices.data.AccountBalanceSetRequestDataEvent;
 import com.paas.microservices.data.AccountCreateRequestDataEvent;
 import com.paas.microservices.data.AccountRepository;
-import com.paas.microservices.domain.TransactionRow.TransactionType;
 
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
@@ -36,15 +35,30 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 
 	@Override
 	@Subscribe
-	public void creditAccount(AccountCreditRequestDomainEvent event) {
+	public void creditAccount(AccountTransactionRequestDomainEvent event) {
 		double previousBalance = getBalance(event.accountNumber);
-		double newBalance = previousBalance + event.amount;
+		double newBalance = previousBalance;
+
+		if(event.type == TransactionType.CREDIT) {
+			newBalance = previousBalance + event.amount;
+		} else {
+			newBalance = previousBalance - event.amount;
+
+			if(newBalance < 0) {
+				throw new RuntimeException("You are trying to debit more than your account balance currently has");
+			}
+		}
+
 		Account account = new Account(event.accountNumber, newBalance);
 		AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(event.eventId, account, event);
 		eventBus.post(updateRequest);
-		eventBus.post(new AccountCreditedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance));
+		eventBus.post(new AccountTransactedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance));
 
-		addToHistory(account, TransactionType.CREDIT, event.amount);
+		if(event.type == TransactionType.CREDIT) {
+			addToHistory(account, TransactionType.CREDIT, event.amount);
+		} else {
+			addToHistory(account, TransactionType.DEBIT, event.amount);
+		}
 	}
 
 	private void addToHistory(Account account, TransactionType type, double amount) {
@@ -57,25 +71,6 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	public double getBalance(UUID accountNumber) {
 		Account account = repo.load(accountNumber);
 		return account.balance;
-	}
-
-	@Override
-	@Subscribe
-	public void debitAccount(AccountDebitRequestDomainEvent event) {
-		double previousBalance = getBalance(event.accountNumber);
-		double newBalance = previousBalance - event.amount;
-
-		if(newBalance >= 0d) {
-			Account account = new Account(event.accountNumber, newBalance);
-			AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(event.eventId, account, event);
-			eventBus.post(updateRequest);
-			eventBus.post(new AccountDebitedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance, event));
-
-			addToHistory(account, TransactionType.DEBIT, event.amount);
-		} else {
-			//TODO: create a failed debit event
-			throw new RuntimeException("You are trying to debit more than your account balance currently has");
-		}
 	}
 
 	@Override

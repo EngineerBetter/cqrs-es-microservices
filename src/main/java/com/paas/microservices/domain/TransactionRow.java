@@ -2,10 +2,6 @@ package com.paas.microservices.domain;
 
 public class TransactionRow {
 
-	public enum TransactionType {
-		CREDIT, DEBIT
-	}
-
 	public TransactionType type;
 
 	public final double amount;
