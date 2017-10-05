@@ -1,6 +1,7 @@
 package com.paas.microservices;
 
 import com.google.common.eventbus.Subscribe;
+import com.paas.microservices.domain.AccountCreatedDomainEvent;
 
 public class AccountGetter {
 	private Account account;

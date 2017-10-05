@@ -1,4 +1,4 @@
-package com.paas.microservices;
+package com.paas.microservices.domain;
 
 public class TransactionRow {
 

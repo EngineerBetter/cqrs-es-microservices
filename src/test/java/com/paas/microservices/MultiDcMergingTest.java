@@ -10,6 +10,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
+import com.paas.microservices.domain.RepositoryAccountDomainService;
+
 public class MultiDcMergingTest {
 	private StoringEventBus leftEventBus, rightEventBus;
 	private RepositoryAccountDomainService leftService, rightService;

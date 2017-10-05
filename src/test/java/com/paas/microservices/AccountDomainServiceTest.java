@@ -9,7 +9,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.paas.microservices.TransactionRow.TransactionType;
+import com.paas.microservices.domain.AccountCreateRequestDomainEvent;
+import com.paas.microservices.domain.AccountDomainService;
+import com.paas.microservices.domain.RepositoryAccountDomainService;
+import com.paas.microservices.domain.TransactionHistory;
+import com.paas.microservices.domain.TransactionRow;
+import com.paas.microservices.domain.TransactionRow.TransactionType;
 
 public class AccountDomainServiceTest {
 	private AccountRepository repo;

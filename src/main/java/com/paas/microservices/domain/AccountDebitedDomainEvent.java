@@ -1,6 +1,8 @@
-package com.paas.microservices;
+package com.paas.microservices.domain;
 
 import java.util.UUID;
+
+import com.paas.microservices.Event;
 
 public class AccountDebitedDomainEvent implements Event {
 	public final UUID eventId;

@@ -1,6 +1,9 @@
-package com.paas.microservices;
+package com.paas.microservices.domain;
 
 import java.util.UUID;
+
+import com.paas.microservices.Account;
+import com.paas.microservices.Event;
 
 public class AccountCreatedDomainEvent implements Event {
 	public final UUID causeEventId;
