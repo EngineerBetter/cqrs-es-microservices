@@ -19,7 +19,7 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		this.repo = repo;
 		this.eventStore = eventStore;
 		this.eventBus = eventBus;
-		eventBus.register(repo);
+		eventBus.register(this);
 	}
 
 	@Override

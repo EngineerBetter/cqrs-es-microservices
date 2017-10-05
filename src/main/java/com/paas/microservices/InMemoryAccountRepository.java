@@ -5,13 +5,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 public class InMemoryAccountRepository implements AccountRepository {
 	private final EventStore eventStore;
+	private final EventBus eventBus;
 
-	public InMemoryAccountRepository(EventStore eventStore) {
+	public InMemoryAccountRepository(EventStore eventStore, EventBus eventBus) {
 		this.eventStore = eventStore;
+		this.eventBus = eventBus;
+		eventBus.register(this);
 	}
 
 	@Override
@@ -26,6 +30,7 @@ public class InMemoryAccountRepository implements AccountRepository {
 
 			AccountCreatedEvent createdEvent = new AccountCreatedEvent(requestEvent.eventId, newId);
 			eventStore.add(createdEvent);
+			eventBus.post(createdEvent);
 		} else {
 			for(Event e: eventStore.getEvents()) {
 				if(e instanceof AccountCreatedEvent) {

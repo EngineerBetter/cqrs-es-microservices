@@ -10,12 +10,14 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.eventbus.EventBus;
+
 public class InMemoryAccountRepositoryTest {
 	private InMemoryAccountRepository repo;
 
 	@Before
 	public void setup() {
-		repo = new InMemoryAccountRepository(new EventStore());
+		repo = new InMemoryAccountRepository(new EventStore(), new EventBus());
 	}
 
 	@Test
@@ -42,7 +44,7 @@ public class InMemoryAccountRepositoryTest {
 	@Test
 	public void reimportingEventsDoesNotCreateDuplicates() {
 		InMemoryAccountRepository left;
-		left = new InMemoryAccountRepository(new EventStore());
+		left = new InMemoryAccountRepository(new EventStore(), new EventBus());
 
 		assertThat(left.getEvents().size()).isEqualTo(0);
 
@@ -74,8 +76,8 @@ public class InMemoryAccountRepositoryTest {
 	@Test
 	public void mergingWorksWithoutDuplicates() {
 		InMemoryAccountRepository left, right;
-		left = new InMemoryAccountRepository(new EventStore());
-		right = new InMemoryAccountRepository(new EventStore());
+		left = new InMemoryAccountRepository(new EventStore(), new EventBus());
+		right = new InMemoryAccountRepository(new EventStore(), new EventBus());
 
 		assertCreateRequestResultsInTwoEvents(left);
 		assertCreateRequestResultsInTwoEvents(right);
@@ -94,8 +96,8 @@ public class InMemoryAccountRepositoryTest {
 	@Test
 	public void mergingWorksWithDuplicates() {
 		InMemoryAccountRepository left, right;
-		left = new InMemoryAccountRepository(new EventStore());
-		right = new InMemoryAccountRepository(new EventStore());
+		left = new InMemoryAccountRepository(new EventStore(), new EventBus());
+		right = new InMemoryAccountRepository(new EventStore(), new EventBus());
 
 		AccountCreateRequestEvent requestEvent = new AccountCreateRequestEvent(UUID.randomUUID(), 0d);
 

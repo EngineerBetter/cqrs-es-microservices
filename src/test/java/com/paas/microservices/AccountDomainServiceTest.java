@@ -16,13 +16,15 @@ public class AccountDomainServiceTest {
 	private AccountRepository repo;
 	private AccountDomainService accountService;
 	private EventStore eventStore;
+	private EventBus eventBus;
 	private Account account;
 
 	@Before
 	public void setup() {
 		eventStore = new EventStore();
-		repo = new InMemoryAccountRepository(eventStore);
-		accountService = new RepositoryAccountDomainService(repo, eventStore, new EventBus());
+		eventBus = new EventBus();
+		repo = new InMemoryAccountRepository(eventStore, eventBus);
+		accountService = new RepositoryAccountDomainService(repo, eventStore, eventBus);
 		account = createAccount();
 	}
 
