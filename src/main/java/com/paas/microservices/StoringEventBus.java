@@ -71,6 +71,8 @@ public class StoringEventBus implements SubscriberExceptionHandler {
 
 			if(!shouldSkip) {
 				post(event);
+			} else {
+				failedEvents.add(event);
 			}
 		}
 	}
