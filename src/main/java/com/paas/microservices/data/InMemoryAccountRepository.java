@@ -40,6 +40,7 @@ public class InMemoryAccountRepository implements AccountRepository, ResetHandle
 	@Subscribe
 	public Account save(AccountBalanceSetRequestDataEvent requestEvent) {
 		accounts.put(requestEvent.account.accountNumber, requestEvent.account);
+		eventBus.post(new AccountUpdatedDataEvent(requestEvent));
 		return requestEvent.account;
 	}
 

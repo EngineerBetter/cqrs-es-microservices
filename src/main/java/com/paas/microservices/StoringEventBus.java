@@ -5,6 +5,11 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph.CycleFoundException;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.traverse.TopologicalOrderIterator;
+
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;
@@ -60,10 +65,32 @@ public class StoringEventBus implements SubscriberExceptionHandler {
 		eventBus.post(new ResetStateEvent());
 		seenEvents.clear();
 
-		for (Event event : otherEvents) {
-			boolean shouldSkip = false;
+		DirectedAcyclicGraph<Event, DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
+
+		for(Event event : otherEvents) {
+			dag.addVertex(event);
+		}
+
+		for(Event event : otherEvents) {
 			if(event instanceof CausableEvent) {
 				CausableEvent causable = (CausableEvent) event;
+				try {
+					dag.addDagEdge(causable.getCause(), causable);
+				} catch (CycleFoundException e) {
+					throw new RuntimeException("Cycle found between events");
+				}
+			}
+		}
+
+		TopologicalOrderIterator<Event,DefaultEdge> iterator = new TopologicalOrderIterator<>(dag);
+
+		while(iterator.hasNext()) {
+			Event event = iterator.next();
+			boolean shouldSkip = false;
+
+			if(event instanceof CausableEvent) {
+				CausableEvent causable = (CausableEvent) event;
+
 				if(failedEvents.contains(causable.getCause())) {
 					shouldSkip = true;
 				}

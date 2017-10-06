@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import com.paas.microservices.Account;
 import com.paas.microservices.Event;
+import com.paas.microservices.NullEvent;
 import com.paas.microservices.StoringEventBus;
 
 public class InMemoryAccountRepositoryTest {
@@ -25,7 +26,7 @@ public class InMemoryAccountRepositoryTest {
 	@Test
 	public void accountsAreCreatable() {
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(0);
-		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(UUID.randomUUID(), 0d, null);
+		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(UUID.randomUUID(), 0d, new NullEvent());
 		repo.create(requestEvent);
 		assertThat(repo.getTotalNumberOfAccounts()).isEqualTo(1);
 	}
@@ -52,9 +53,9 @@ public class InMemoryAccountRepositoryTest {
 		assertThat(leftEventBus.getEvents().size()).isEqualTo(0);
 
 		UUID createdAccountNumber = UUID.randomUUID();
-		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(createdAccountNumber, 0d, null);
+		leftEventBus.post(new NullEvent());
+		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(createdAccountNumber, 0d, new NullEvent());
 		leftEventBus.post(requestEvent);
-		assertThat(leftEventBus.getEvents().size()).isEqualTo(2);
 
 		Set<Event> leftEvents = leftEventBus.getEvents();
 		assertThat(leftEvents).contains(requestEvent);
@@ -85,9 +86,9 @@ public class InMemoryAccountRepositoryTest {
 		left = new InMemoryAccountRepository(leftEventBus);
 		right = new InMemoryAccountRepository(rightEventBus);
 
-		assertCreateRequestResultsInTwoEvents(left, leftEventBus);
+		assertCreateRequestResultsInCreatedDataEvent(left, leftEventBus);
 		assertThat(left.getTotalNumberOfAccounts()).isEqualTo(1);
-		assertCreateRequestResultsInTwoEvents(right, rightEventBus);
+		assertCreateRequestResultsInCreatedDataEvent(right, rightEventBus);
 		assertThat(right.getTotalNumberOfAccounts()).isEqualTo(1);
 
 
@@ -125,11 +126,11 @@ public class InMemoryAccountRepositoryTest {
 		assertThat(mergedEvents.size()).isEqualTo(2);
 	}
 
-	private void assertCreateRequestResultsInTwoEvents(InMemoryAccountRepository repo, StoringEventBus eventBus) {
+	private void assertCreateRequestResultsInCreatedDataEvent(InMemoryAccountRepository repo, StoringEventBus eventBus) {
 		UUID createdAccountNumber = UUID.randomUUID();
-		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(createdAccountNumber, 0d, null);
+		eventBus.post(new NullEvent());
+		AccountCreateRequestDataEvent requestEvent = new AccountCreateRequestDataEvent(createdAccountNumber, 0d, new NullEvent());
 		eventBus.post(requestEvent);
-		assertThat(eventBus.getEvents().size()).isEqualTo(2);
 
 		Set<Event> leftEvents = eventBus.getEvents();
 		assertThat(leftEvents).contains(requestEvent);

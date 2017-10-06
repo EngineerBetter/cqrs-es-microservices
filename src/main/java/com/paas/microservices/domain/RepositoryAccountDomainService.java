@@ -7,10 +7,13 @@ import java.util.UUID;
 
 import com.google.common.eventbus.Subscribe;
 import com.paas.microservices.Account;
+import com.paas.microservices.Event;
 import com.paas.microservices.StoringEventBus;
 import com.paas.microservices.data.AccountBalanceSetRequestDataEvent;
 import com.paas.microservices.data.AccountCreateRequestDataEvent;
+import com.paas.microservices.data.AccountCreatedDataEvent;
 import com.paas.microservices.data.AccountRepository;
+import com.paas.microservices.data.AccountUpdatedDataEvent;
 
 public class RepositoryAccountDomainService implements AccountDomainService {
 	private AccountRepository repo;
@@ -28,9 +31,22 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 	@Subscribe
 	public void createAccount(AccountCreateRequestDomainEvent event) {
 		double startingBalance = 0d;
-		eventBus.post(new AccountCreateRequestDataEvent(event.eventId, startingBalance, event));
+		AccountCreateRequestDataEvent dataEvent = new AccountCreateRequestDataEvent(event.eventId, startingBalance, event);
+		eventBus.post(dataEvent);
 		Account account = new Account(event.eventId, startingBalance);
-		eventBus.post(new AccountCreatedDomainEvent(event.eventId, account, event));
+		pendingResponses.put(dataEvent, new AccountCreatedDomainEvent(event.eventId, account, event));
+	}
+
+	Map<Event, Event> pendingResponses = new HashMap<>();
+
+	@Subscribe
+	public void handle(AccountCreatedDataEvent event) {
+		if(pendingResponses.containsKey(event.getCause())) {
+			AccountCreatedDomainEvent old = (AccountCreatedDomainEvent) pendingResponses.get(event.getCause());
+			eventBus.post(new AccountCreatedDomainEvent(event.parentEventId, old.account, event));
+		} else {
+			throw new RuntimeException("Could not find response for event "+event);
+		}
 	}
 
 	@Override
@@ -52,12 +68,22 @@ public class RepositoryAccountDomainService implements AccountDomainService {
 		Account account = new Account(event.accountNumber, newBalance);
 		AccountBalanceSetRequestDataEvent updateRequest = new AccountBalanceSetRequestDataEvent(event.eventId, account, event);
 		eventBus.post(updateRequest);
-		eventBus.post(new AccountTransactedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance, event));
+		pendingResponses.put(updateRequest, new AccountTransactedDomainEvent(event.eventId, event.accountNumber, event.amount, newBalance, event));
 
 		if(event.type == TransactionType.CREDIT) {
 			addToHistory(account, TransactionType.CREDIT, event.amount);
 		} else {
 			addToHistory(account, TransactionType.DEBIT, event.amount);
+		}
+	}
+
+	@Subscribe
+	public void handle(AccountUpdatedDataEvent event) {
+		if(pendingResponses.containsKey(event.getCause())) {
+			AccountTransactedDomainEvent old = (AccountTransactedDomainEvent) pendingResponses.get(event.getCause());
+			eventBus.post(new AccountTransactedDomainEvent(old.eventId, old.accountNumber, old.amount, old.resultingBalance, event));
+		} else {
+			throw new RuntimeException("Could not find response for event "+event);
 		}
 	}
 
